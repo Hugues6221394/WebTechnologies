@@ -40,7 +40,9 @@ public class CustomerServiceImpl implements ICustomerService{
         Customer found = findCustomerByIdAndState(theCustomer.getId() , Boolean.TRUE);
         if(Objects.nonNull(found)){
             found.setFirstName(theCustomer.getFirstName());
-            ///....provide all attributes
+            found.setLastName(theCustomer.getLastName());
+            found.setEmail(theCustomer.getEmail());
+            found.setPhoneNumber(theCustomer.getPhoneNumber());
             return customerRepository.save(found);
         }
         throw new ObjectNotFoundException(Customer.class , "Customer Object not found");

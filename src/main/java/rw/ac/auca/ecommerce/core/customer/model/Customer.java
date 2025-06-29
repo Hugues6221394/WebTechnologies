@@ -2,10 +2,7 @@ package rw.ac.auca.ecommerce.core.customer.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import rw.ac.auca.ecommerce.core.base.AbstractBaseEntity;
 
 /**
@@ -14,6 +11,7 @@ import rw.ac.auca.ecommerce.core.base.AbstractBaseEntity;
  * @author Jeremie Ukundwa Tuyisenge
  * @version 1.0
  */
+@ToString
 @Getter
 @Setter
 @Entity
