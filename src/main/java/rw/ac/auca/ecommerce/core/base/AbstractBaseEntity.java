@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,8 @@ import java.util.UUID;
  * @author Jeremie Ukundwa Tuyisenge
  * @version 1.0
  */
+
+@ToString
 @Getter
 @Setter
 @MappedSuperclass
