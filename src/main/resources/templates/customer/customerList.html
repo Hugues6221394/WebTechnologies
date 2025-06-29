@@ -1,52 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Customer List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+        }
+
+        .navigation {
+            margin-bottom: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: #1a252f;
+        }
+
+        .customer-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .customer-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .customer-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .customer-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .customer-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .action-form {
+            display: inline-block;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-delete {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-update {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-update:hover {
+            background-color: #219653;
+        }
+
+        .no-customers {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <h1>Page Navigation</h1>
-        <a th:href="@{/customer/register}"> Register Customer</a> <br/>
-        <a th:href="@{/customer/search/all}"> Customer List</a> <br/>
+<div class="container">
+    <div class="header">
+        <h1 class="page-title">Customer List</h1>
+        <div class="navigation">
+            <div class="nav-links">
+                <a th:href="@{/customer/register}">Register Customer</a>
+                <a th:href="@{/customer/search/all}">View All Customers</a>
+            </div>
+        </div>
     </div>
-    <h1>Customer List Page</h1>
 
-    <div>
-        <table border="2">
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Phone Number</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="cust : ${customers}">
-                    <td th:text="${cust.firstName}"></td>
-                    <td th:text="${cust.lastName}"></td>
-                    <td th:text="${cust.email}"></td>
-                    <td th:text="${cust.phoneNumber}"></td>
-                    <td>
-                        <div>
-                            <form th:action="@{/customer/delete}" method="post">
-                                <input th:hidden="true" name="id" th:value="${cust.id}">
-                                <button type="submit"> Delete</button>
-                            </form>
-                        </div>
-                        |
-                        <div>
-                            <form th:action="@{/customer/update}" method="post">
-                                <input th:hidden="true" name="id" th:value="${cust.id}">
-                                <button type="submit"> Update</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <table class="customer-table">
+        <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cust : ${customers}" th:if="${customers.size() > 0}">
+            <td th:text="${cust.firstName}"></td>
+            <td th:text="${cust.lastName}"></td>
+            <td th:text="${cust.email}"></td>
+            <td th:text="${cust.phoneNumber}"></td>
+            <td>
+                <div class="action-buttons">
+                    <form class="action-form" th:action="@{/customer/delete}" method="post">
+                        <input type="hidden" name="id" th:value="${cust.id}">
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                    </form>
+                    <span>|</span>
+                    <form class="action-form" th:action="@{/customer/update}" method="post">
+                        <input type="hidden" name="id" th:value="${cust.id}">
+                        <button type="submit" class="btn btn-update">Update</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        <tr th:if="${customers.size() == 0}">
+            <td colspan="5" class="no-customers">No customers found. <a th:href="@{/customer/register}">Register a new customer</a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>
