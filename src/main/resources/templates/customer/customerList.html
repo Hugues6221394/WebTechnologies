@@ -2,35 +2,230 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Customer List</title>
+    <title>Customer Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .banner {
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+
+        .banner h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .shop-now {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .registration-form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .registration-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .create-account {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .social-login {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        /* Customer list specific styles */
+        .customer-list {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .customer-list h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .page-navigation {
+            margin-bottom: 30px;
+        }
+
+        .page-navigation a {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <h1>Page Navigation</h1>
-        <a th:href="@{/customer/register}"> Register Customer</a> <br/>
-        <a th:href="@{/customer/search/all}"> Customer List</a> <br/>
+<header class="header">
+    <div class="nav-container">
+        <div class="logo">Exclusive</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Contact</a>
+            <a href="#">About</a>
+            <a href="#">Sign Up</a>
+        </div>
     </div>
-    <h1>Customer List Page</h1>
+</header>
 
-    <div>
-        <table border="2">
+<div class="banner">
+    <h2>Summer Sale For All Swim Suits And Free Express Delivery - OFF 50%!</h2>
+    <button class="shop-now">ShopNow</button>
+</div>
+
+<div class="container">
+    <div class="page-navigation">
+        <h1>Page Navigation</h1>
+        <a th:href="@{/customer/register}">Register Customer</a>
+        <a th:href="@{/customer/search/all}">Customer List</a>
+    </div>
+
+    <div class="customer-list">
+        <h1>Customer List Page</h1>
+
+        <table>
             <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Phone Number</th>
-                </tr>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+            </tr>
             </thead>
             <tbody>
-                <tr th:each="cust : ${customers}">
-                    <td th:text="${cust.firstName}"></td>
-                    <td th:text="${cust.lastName}"></td>
-                    <td th:text="${cust.email}"></td>
-                    <td th:text="${cust.phoneNumber}"></td>
-                </tr>
+            <tr th:each="cust : ${customers}">
+                <td th:text="${cust.firstName}"></td>
+                <td th:text="${cust.lastName}"></td>
+                <td th:text="${cust.email}"></td>
+                <td th:text="${cust.phoneNumber}"></td>
+            </tr>
             </tbody>
         </table>
     </div>
+</div>
 </body>
 </html>

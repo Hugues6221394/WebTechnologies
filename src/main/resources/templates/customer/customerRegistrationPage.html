@@ -2,35 +2,232 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Customer Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .banner {
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+
+        .banner h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .shop-now {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .registration-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .page-navigation {
+            width: 20%;
+        }
+
+        .page-navigation h1 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .page-navigation a {
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .registration-form {
+            width: 75%;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .registration-form h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <h1>Page Navigation</h1>
-        <a th:href="@{/customer/register}"> Register Customer</a> <br/>
-        <a th:href="@{/customer/search/all}"> Customer List</a> <br/>
+<header class="header">
+    <div class="nav-container">
+        <div class="logo">Exclusive</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Contact</a>
+            <a href="#">About</a>
+            <a href="#">Sign Up</a>
+        </div>
     </div>
-    <div>
-        <span th:if="${message != null}">
-            <span th:text="${message}" style="color: green"></span>
-        </span>
-        <span th:if="${error != null}">
-            <span th:text="${error}" style="color: red"></span>
-        </span>
+</header>
+
+<div class="banner">
+    <h2>Summer Sale For All swimsuits And Free Express Delivery - OFF 50%!</h2>
+    <button class="shop-now">ShopNow</button>
+</div>
+
+<div class="container">
+    <div class="message">
+            <span th:if="${message != null}" class="success">
+                <span th:text="${message}"></span>
+            </span>
+        <span th:if="${error != null}" class="error">
+                <span th:text="${error}"></span>
+            </span>
     </div>
-    <h1>Customer Registration page</h1>
-    <div>
-        <form th:action="@{/customer/register}" th:object="${customer}" method="post">
-            <label>First Name: </label>
-            <input type="text" th:field="*{firstName}" required> <br/>
-            <label>Last Name: </label>
-            <input type="text" th:field="*{lastName}" required><br/>
-            <label>Email: </label>
-            <input type="email" th:field="*{email}" required><br/>
-            <label>Phone Number: </label>
-            <input type="text" th:field="*{phoneNumber}" required><br/>
-            <button type="submit" >Register</button>
-        </form>
+
+    <div class="registration-container">
+        <div class="page-navigation">
+            <h1>Page Navigation</h1>
+            <a th:href="@{/customer/register}">Register Customer</a>
+            <a th:href="@{/customer/search/all}">Customer List</a>
+        </div>
+
+        <div class="registration-form">
+            <h1>Customer Registration Page</h1>
+
+            <form th:action="@{/customer/register}" th:object="${customer}" method="post">
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" th:field="*{firstName}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" th:field="*{lastName}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" th:field="*{email}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number:</label>
+                    <input type="text" id="phoneNumber" th:field="*{phoneNumber}" required>
+                </div>
+
+                <button type="submit">Register</button>
+            </form>
+        </div>
     </div>
+</div>
 </body>
 </html>

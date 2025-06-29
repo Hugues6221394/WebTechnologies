@@ -1,10 +1,336 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exclusive - Products</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background-color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .product-image {
+            height: 200px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .product-details {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .price-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .current-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .original-price {
+            font-size: 0.9rem;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .stock-state {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .in-stock {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+
+        .low-stock {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: #f39c12;
+        }
+
+        .out-of-stock {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .manufacture-date {
+            color: #666;
+        }
+
+        .see-all {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .see-all-btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .see-all-btn:hover {
+            background-color: #1a252f;
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .filter-container {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+            color: #666;
+        }
+
+        .filter-select, .filter-checkbox {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .filter-button {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-$END$
+<header>
+    <div class="nav-container">
+        <div class="logo">Exclusive</div>
+        <nav class="nav-links">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/contact}">Contact</a>
+            <a th:href="@{/about}">About</a>
+            <a th:href="@{/signup}">Sign Up</a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <h2 class="section-title">Our Products</h2>
+
+    <!-- Filter Form -->
+    <div class="filter-container">
+        <form th:action="@{/products}" method="get" class="filter-form">
+            <div class="filter-group">
+                <label class="filter-label">Stock Status</label>
+                <select name="stockState" class="filter-select">
+                    <option value="">All</option>
+                    <option th:each="state : ${T(rw.ac.auca.ecommerce.core.util.product.EStockState).values()}"
+                            th:value="${state}"
+                            th:text="${#strings.capitalize(#strings.replace(#strings.toLowerCase(state.name()), '_', ' '))}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Active Only</label>
+                <input type="checkbox" name="active" value="true" checked class="filter-checkbox">
+            </div>
+
+            <button type="submit" class="filter-button">Filter</button>
+        </form>
+    </div>
+
+    <div class="products-grid">
+        <!-- Dynamic Product Listing -->
+        <div class="product-card" th:each="product : ${products}">
+            <!-- Discount badge (example logic) -->
+            <div class="discount-badge" th:if="${product.price < 1000}">
+                SALE
+            </div>
+
+            <div class="product-image">
+                <!-- Placeholder for product image -->
+                <span th:text="${product.productName.substring(0, 1)}"></span>
+            </div>
+
+            <div class="product-details">
+                <h3 class="product-name" th:text="${product.productName}"></h3>
+                <p class="product-description" th:text="${product.description}"></p>
+
+                <div class="price-container">
+                        <span class="current-price"
+                              th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2, 'COMMA')}"></span>
+                </div>
+
+                <div class="product-meta">
+                        <span class="manufacture-date"
+                              th:text="'Manufactured: ' + ${#temporals.format(product.manufacturedDate, 'yyyy-MM-dd')}"></span>
+
+                    <!-- Dynamic stock state based on EStockState -->
+                    <span th:classappend="${product.stockState.name() == 'IN_STOCK'} ? 'in-stock' :
+                                            (${product.stockState.name() == 'LOW_STOCK'} ? 'low-stock' : 'out-of-stock')"
+                          class="stock-state">
+                            <span th:text="${#strings.capitalize(#strings.replace(#strings.toLowerCase(product.stockState.name()), '_', ' '))}"></span>
+                        </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="see-all">
+        <a th:href="@{/products}" class="see-all-btn">View All Products</a>
+    </div>
+</div>
 </body>
 </html>
