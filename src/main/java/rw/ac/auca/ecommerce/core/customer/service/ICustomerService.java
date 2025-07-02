@@ -19,4 +19,7 @@ public interface ICustomerService {
     Customer findCustomerByIdAndState(UUID id , Boolean state);
     Customer findCustomerByEmailAndState(String email , Boolean state);
     List<Customer> findCustomersByState(Boolean state);
+
+    Customer findByEmailAndPhoneNumber(String email, String phoneNumber);
+    //Customer findByEmailAndPhoneNumber(String email, String phoneNumber);
 }

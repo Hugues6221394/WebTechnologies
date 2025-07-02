@@ -1,37 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Update</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        div {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        a {
+            display: inline-block;
+            margin: 5px 0;
+            padding: 8px 15px;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #1a252f;
+        }
+
+        span[style="color: green"] {
+            display: block;
+            padding: 10px;
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        span[style="color: red"] {
+            display: block;
+            padding: 10px;
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        button[type="submit"] {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #219653;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <h1>Page Navigation</h1>
-        <a th:href="@{/customer/register}"> Register Customer</a> <br/>
-        <a th:href="@{/customer/search/all}"> Customer List</a> <br/>
-    </div>
-    <div>
+<div>
+    <h1>Page Navigation</h1>
+    <a th:href="@{/customer/register}">Register Customer</a> <br/>
+    <a th:href="@{/customer/search/all}">Customer List</a> <br/>
+</div>
+<div>
         <span th:if="${message != null}">
             <span th:text="${message}" style="color: green"></span>
         </span>
-        <span th:if="${error != null}">
+    <span th:if="${error != null}">
             <span th:text="${error}" style="color: red"></span>
         </span>
-    </div>
+</div>
+<div>
     <h1>Customer Update page</h1>
-    <div>
-        <form th:action="@{/customer/updateCustomer}" th:object="${customer}" method="post">
-            <label>First Name: </label>
-            <input type="text" th:field="*{firstName}" required> <br/>
-            <label>Last Name: </label>
-            <input type="text" th:field="*{lastName}" required><br/>
-            <label>Email: </label>
-            <input type="email" th:field="*{email}" required><br/>
-            <label>Phone Number: </label>
-            <input type="text" th:field="*{phoneNumber}" required><br/>
-            <input th:hidden="true" th:field="*{id}">
-            <button type="submit" >Update</button>
-        </form>
-    </div>
+    <form th:action="@{/customer/updateCustomer}" th:object="${customer}" method="post">
+        <label>First Name: </label>
+        <input type="text" th:field="*{firstName}" required> <br/>
+        <label>Last Name: </label>
+        <input type="text" th:field="*{lastName}" required><br/>
+        <label>Email: </label>
+        <input type="email" th:field="*{email}" required><br/>
+        <label>Phone Number: </label>
+        <input type="text" th:field="*{phoneNumber}" required><br/>
+        <input th:hidden="true" th:field="*{id}">
+        <button type="submit">Update</button>
+    </form>
+</div>
 </body>
 </html>

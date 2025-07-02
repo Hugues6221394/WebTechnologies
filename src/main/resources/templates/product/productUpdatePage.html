@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h2>Update Product</h2>
+
+<form th:action="@{/product/updateProduct}" th:object="${product}" method="post" class="row g-3">
+    <input type="hidden" th:field="*{id}"/>
+
+    <div class="col-md-6">
+        <label class="form-label">Product Name</label>
+        <input type="text" th:field="*{productName}" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Price (Frw)</label>
+        <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Description</label>
+        <textarea th:field="*{description}" class="form-control" rows="3" required></textarea>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Manufactured Date</label>
+        <input type="date" th:field="*{manufacturedDate}" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Expiration Date</label>
+        <input type="date" th:field="*{expirationDate}" class="form-control">
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Stock State</label>
+        <select th:field="*{stockState}" class="form-select" required>
+            <option value="">-- Select Stock State --</option>
+            <option value="AVAILABLE">In Stock</option>
+            <option value="OUT_STOCK">Out of Stock</option>
+            <option value="DAMAGED">Discontinued</option>
+        </select>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-warning">Update Product</button>
+        <a href="/product" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+</body>
+</html>

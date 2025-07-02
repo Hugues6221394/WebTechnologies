@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import rw.ac.auca.ecommerce.core.customer.model.Customer;
 import rw.ac.auca.ecommerce.core.customer.service.ICustomerService;
+import rw.ac.auca.ecommerce.core.product.service.IProductService;
 
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +23,13 @@ import java.util.UUID;
 @RequestMapping("/customer/")
 public class CustomerController {
     private final ICustomerService customerService;
+    private final IProductService productService;
+
+    @GetMapping("/homepage")
+    public String customerHomepage(Model model) {
+        model.addAttribute("products", productService.findProductsByState(true));
+        return "customer/homepage";
+    }
 
 
     @GetMapping({"/" , "/search/all"})
@@ -81,4 +89,28 @@ public class CustomerController {
         }
         return "redirect:/customer/search/all";
     }
+
+    @GetMapping("/login")
+    public String getLoginPage() {
+        return "customer/customerLoginpage"; // renders login form
+    }
+
+    @PostMapping("/login")
+    public String loginCustomer(@RequestParam String email,
+                                @RequestParam String phoneNumber,
+                                Model model) {
+        try {
+            Customer customer = customerService.findByEmailAndPhoneNumber(email, phoneNumber);
+            if (customer != null) {
+                // You can redirect to a dashboard or homepage after login
+                model.addAttribute("customer", customer);
+                return "redirect:/customer/homepage";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "Invalid credentials. Please try again.");
+        }
+        return "customer/customerLoginpage";
+    }
+
+
 }

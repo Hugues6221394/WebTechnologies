@@ -29,13 +29,16 @@ public class ProductServiceImpl implements IProductService{
 
     @Override
     public Product updateProduct(Product theProduct) {
-        return null;
+        // You might want to check if product exists before updating
+        return productRepository.save(theProduct);
     }
 
     @Override
     public Product deleteProduct(Product theProduct) {
-        return null;
+        productRepository.deleteById(theProduct.getId());
+        return theProduct;
     }
+
 
     @Override
     public Product findProductByIdAndState(UUID id, Boolean active) {

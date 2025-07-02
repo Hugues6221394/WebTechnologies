@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import rw.ac.auca.ecommerce.core.base.AbstractBaseEntity;
 import rw.ac.auca.ecommerce.core.util.product.EStockState;
 
@@ -19,25 +20,28 @@ import java.util.UUID;
  * @author Jeremie Ukundwa Tuyisenge
  * @version 1.0
  */
-@Getter @Setter
+@ToString
+@Getter
+@Setter
 @Entity
 public class Product extends AbstractBaseEntity {
-    @Column(name = "product_name" , nullable = false)
+
+    @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "description" , nullable = false)
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "price" , nullable = false)
+    @Column(name = "price", nullable = false)
     private Double price;
 
-    @Column(name = "manufactured_date" , nullable = false)
+    @Column(name = "manufactured_date", nullable = false)
     private LocalDate manufacturedDate;
 
-    @Column(name = "expiration_date" , nullable = true)
+    @Column(name = "expiration_date")
     private LocalDate expirationDate;
 
-    @Column(name = "stock_state" , nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "stock_state", nullable = false)
     private EStockState stockState;
 }

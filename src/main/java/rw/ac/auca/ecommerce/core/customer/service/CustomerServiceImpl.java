@@ -76,4 +76,11 @@ public class CustomerServiceImpl implements ICustomerService{
     public List<Customer> findCustomersByState(Boolean state) {
         return customerRepository.findAllByActive(state);
     }
+    @Override
+    public Customer findByEmailAndPhoneNumber(String email, String phoneNumber) {
+        return customerRepository.findByEmailAndPhoneNumber(email, phoneNumber)
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+    }
+
+
 }
