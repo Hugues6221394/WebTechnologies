@@ -1,14 +1,13 @@
 package rw.ac.auca.ecommerce.core.product.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import rw.ac.auca.ecommerce.core.base.AbstractBaseEntity;
 import rw.ac.auca.ecommerce.core.util.product.EStockState;
+import rw.ac.auca.ecommerce.entity.AppUser;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,10 +19,11 @@ import java.util.UUID;
  * @author Jeremie Ukundwa Tuyisenge
  * @version 1.0
  */
-@ToString
+@Entity
 @Getter
 @Setter
-@Entity
+@ToString
+@EntityListeners(AuditingEntityListener.class)
 public class Product extends AbstractBaseEntity {
 
     @Column(name = "product_name", nullable = false)
@@ -44,4 +44,8 @@ public class Product extends AbstractBaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "stock_state", nullable = false)
     private EStockState stockState;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id")
+    private AppUser seller;
 }

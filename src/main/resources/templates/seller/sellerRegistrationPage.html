@@ -113,7 +113,7 @@
     <div class="nav-container">
         <div class="logo">Exclusive</div>
         <div class="nav-links">
-            <a href="#">Home</a>
+            <a href="/customer/homepage">Home</a>
             <a href="#">Contact</a>
             <a href="#">About</a>
             <a href="/customer/register">Sign Up</a>
@@ -127,7 +127,7 @@
     <div th:if="${message}" class="success" th:text="${message}"></div>
     <div th:if="${error}" class="error" th:text="${error}"></div>
 
-    <form th:action="@{/seller/register}" th:object="${seller}" method="post">
+    <form th:action="@{/seller/register}" th:object="${user}" method="post">
 
         <div class="form-group">
             <label for="businessName">Business Name</label>

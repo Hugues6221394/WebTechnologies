@@ -20,5 +20,10 @@ public interface IProductService {
     List<Product> findProductsByState(Boolean active);
     List<Product> findProductsByStockStateAndState(EStockState stockState , Boolean active);
     List<Product> findProductsByStockStatesAndState(List<EStockState> stockStates , Boolean active);
+    int countProductsBySellerId(UUID sellerId);
+    int countOrdersBySellerId(UUID sellerId);
+    double calculateTotalRevenueForSeller(UUID sellerId);
+
+
 
 }

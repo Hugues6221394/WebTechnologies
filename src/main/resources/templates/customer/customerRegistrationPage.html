@@ -170,10 +170,10 @@
     <div class="nav-container">
         <div class="logo">Exclusive</div>
         <div class="nav-links">
-            <a href="#">Home</a>
+            <a href="/customer/homepage">Home</a>
             <a href="#">Contact</a>
             <a href="#">About</a>
-            <a href="customerRegistrationPage.html">Sign Up</a>
+            <a href="auth/register">Sign Up</a>
         </div>
     </div>
 </header>
@@ -201,10 +201,10 @@
         </div>
 
         <div class="registration-form">
-            <h1>Customer Registration Page</h1>
+            <h1>User Registration Page</h1>
 
-            <form th:action="@{/customer/register}" th:object="${customer}" method="post">
-                <div class="form-group">
+            <form th:action="@{/customer/register}" th:object="${user}" method="post">
+            <div class="form-group">
                     <label for="firstName">First Name:</label>
                     <input type="text" id="firstName" th:field="*{firstName}" required>
                 </div>
@@ -220,8 +220,27 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" th:field="*{password}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+
+                <div class="form-group">
                     <label for="phoneNumber">Phone Number:</label>
                     <input type="text" id="phoneNumber" th:field="*{phoneNumber}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Register As:</label>
+                    <select id="role" th:field="*{role}" required>
+                        <option value="" disabled selected>Select role</option>
+                        <option th:value="CUSTOMER">Customer</option>
+                        <option th:value="SELLER">Seller</option>
+                    </select>
                 </div>
 
                 <button type="submit">Register</button>
@@ -229,5 +248,14 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('role').addEventListener('change', function() {
+        if (this.value === 'SELLER') {
+            window.location.href = '/seller/register';  // controller mapping URL
+        }
+    });
+</script>
+
+
 </body>
 </html>

@@ -1,10 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <title>Login - AUCA E-Commerce</title>
+  <style>
+    /* Your existing styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button[type="submit"] {
+      background-color: #2c3e50;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #2c3e50;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .register-link a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-$END$
+<div class="login-container">
+  <h2>Login</h2>
+
+  <form th:action="@{/auth/login}" method="post">
+    <label for="role">Login as:</label>
+    <select id="role" name="role" required>
+      <option value="" disabled selected>Select role</option>
+      <option value="SELLER">Seller</option>
+      <option value="CUSTOMER">Customer</option>
+      <option value="ADMIN">Admin</option>
+    </select>
+
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" required autofocus>
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" required>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <p class="error" th:if="${error}" th:text="${error}"></p>
+
+  <div class="register-link">
+    <span>Don't have an account? Register as </span>
+    <a th:href="@{/seller/register}">Seller</a> or
+    <a th:href="@{/customer/register}">Customer</a>
+  </div>
+</div>
+
 </body>
 </html>

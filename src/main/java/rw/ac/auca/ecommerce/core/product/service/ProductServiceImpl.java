@@ -18,18 +18,20 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl implements IProductService{
+public class ProductServiceImpl implements IProductService {
 
     private final IProductRepository productRepository;
 
     @Override
     public Product createProduct(Product theProduct) {
+        theProduct.setActive(true); // Important if you're filtering active products
+        //productRepository.save(theProduct);
         return productRepository.save(theProduct);
     }
 
     @Override
     public Product updateProduct(Product theProduct) {
-        // You might want to check if product exists before updating
+        // Optional: check if product exists before updating
         return productRepository.save(theProduct);
     }
 
@@ -39,12 +41,10 @@ public class ProductServiceImpl implements IProductService{
         return theProduct;
     }
 
-
     @Override
     public Product findProductByIdAndState(UUID id, Boolean active) {
-        Product theProduct = productRepository.findByIdAndActive(id , active)
-                .orElseThrow(() -> new ObjectNotFoundException(Product.class , "Product not Found"));
-        return theProduct;
+        return productRepository.findByIdAndActive(id, active)
+                .orElseThrow(() -> new ObjectNotFoundException(Product.class, "Product not Found"));
     }
 
     @Override
@@ -54,11 +54,27 @@ public class ProductServiceImpl implements IProductService{
 
     @Override
     public List<Product> findProductsByStockStateAndState(EStockState stockState, Boolean active) {
-        return productRepository.findAllByStockStateAndActive(stockState,active);
+        return productRepository.findAllByStockStateAndActive(stockState, active);
     }
 
     @Override
     public List<Product> findProductsByStockStatesAndState(List<EStockState> stockStates, Boolean active) {
-        return productRepository.findALlByStockStateInAndActive(stockStates,active);
+        return productRepository.findAllByStockStateInAndActive(stockStates, active);
+    }
+
+    @Override
+    public int countProductsBySellerId(UUID sellerId) {
+        return productRepository.countBySeller_Id(sellerId);
+    }
+
+    // Remove or implement properly depending on domain model
+    @Override
+    public int countOrdersBySellerId(UUID sellerId) {
+        return productRepository.countOrdersBySellerId(sellerId);
+    }
+
+    @Override
+    public double calculateTotalRevenueForSeller(UUID sellerId) {
+        return productRepository.calculateTotalRevenueForSeller(sellerId);
     }
 }
