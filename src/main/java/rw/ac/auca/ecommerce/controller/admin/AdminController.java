@@ -34,16 +34,20 @@ public class AdminController {
         return "admin/adminDashboard";
     }
 
+
+
     @GetMapping("/admin/sellers")
     public String viewSellers(HttpSession session, Model model) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
+
         if (user == null || user.getRole() != UserRole.ADMIN) {
             return "redirect:/auth/login";
         }
 
         model.addAttribute("sellers", appUserService.findAllSellers());
-        return "admin/sellerListPage";
+        return "seller/sellerListPage";
     }
+
 
     @PostMapping("/admin/seller/delete")
     public String deleteSeller(@RequestParam("id") String id, HttpSession session) {

@@ -3,14 +3,18 @@ package rw.ac.auca.ecommerce.core.order.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import rw.ac.auca.ecommerce.entity.Order;
+import org.springframework.stereotype.Repository;
+import rw.ac.auca.ecommerce.entity.order.Order;
 
+import java.util.List;
 import java.util.UUID;
 
+@Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
+    int countByCustomer_Id(UUID customerId);
+    List<Order> findByCustomer_Id(UUID customerId);
+    @Query("SELECT o FROM Order o WHERE o.product.seller.id = :sellerId")
+    List<Order> findOrdersBySellerId(@Param("sellerId") UUID sellerId);
 
-    int countBySellerId(UUID sellerId);
-
-    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.seller.id = :sellerId")
-    Double sumTotalAmountBySellerId(@Param("sellerId") UUID sellerId);
 }
+

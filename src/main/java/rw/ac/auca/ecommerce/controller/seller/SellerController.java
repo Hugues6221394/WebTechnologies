@@ -80,7 +80,6 @@ public class SellerController {
         return "redirect:/seller/dashboard";
     }
 
-    // GET seller dashboard
     @GetMapping("/dashboard")
     public String sellerDashboard(HttpSession session, Model model) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
@@ -91,11 +90,15 @@ public class SellerController {
 
         UUID sellerId = user.getId();
 
-        // Fetch dashboard data
+        // Dashboard summary
         int totalProducts = productService.countProductsBySellerId(sellerId);
-        int orderCount = orderService.countOrdersBySellerId(sellerId);
-        double totalRevenue = orderService.calculateTotalRevenueForSeller(sellerId);
+        int orderCount = orderService.getOrdersByCustomer(sellerId).size();  // <-- fixed: getOrdersBySellerId
+        double totalRevenue = orderService.getTotalRevenueBySellerId(sellerId);
 
+        // Fetch all orders on seller's products
+        model.addAttribute("sellerOrders", orderService.getOrdersByCustomer(sellerId));
+
+        // Add attributes
         model.addAttribute("seller", user);
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("orderCount", orderCount);
@@ -103,4 +106,7 @@ public class SellerController {
 
         return "seller/sellerDashboard";
     }
+
+
+
 }

@@ -7,11 +7,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import rw.ac.auca.ecommerce.core.customer.model.Customer;
 import rw.ac.auca.ecommerce.core.customer.service.ICustomerService;
+import rw.ac.auca.ecommerce.core.order.service.IOrderService;
+import rw.ac.auca.ecommerce.core.product.model.Product;
 import rw.ac.auca.ecommerce.core.product.service.IProductService;
 import rw.ac.auca.ecommerce.core.util.product.UserRole;
 import rw.ac.auca.ecommerce.core.customer.service.IAppUserService;
 import rw.ac.auca.ecommerce.entity.AppUser;
+import rw.ac.auca.ecommerce.entity.order.Order;
+import rw.ac.auca.ecommerce.entity.order.OrderItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,6 +29,7 @@ public class CustomerController {
     private final ICustomerService customerService;
     private final IProductService productService;
     private final IAppUserService appUserService;
+    private final IOrderService orderService;
 
     // Customer homepage with visible products (active only)
     @GetMapping("/homepage")
@@ -174,4 +180,62 @@ public class CustomerController {
         }
         return "seller/sellerRegistrationPage";
     }
+
+
+    @PostMapping("/placeOrder")
+    public String placeOrder(HttpSession session, Model model) {
+        List<Product> cart = (List<Product>) session.getAttribute("cart");
+        AppUser customer = (AppUser) session.getAttribute("loggedInUser");
+
+        if (customer == null || customer.getRole() != UserRole.CUSTOMER) {
+            return "redirect:/auth/login";
+        }
+
+        if (cart == null || cart.isEmpty()) {
+            model.addAttribute("error", "Your cart is empty.");
+            return "cart/viewCart";
+        }
+
+        Order order = new Order();
+        order.setCustomer(customer);
+
+        List<OrderItem> items = cart.stream().map(product -> {
+            OrderItem item = new OrderItem();
+            item.setProduct(product);
+            item.setQuantity(1); // You can later support choosing quantity
+            item.setPrice(product.getPrice());
+            item.setOrder(order);
+            return item;
+        }).toList();
+
+        order.setItems(items);
+        orderService.saveOrder(order);
+
+        session.removeAttribute("cart");
+        model.addAttribute("message", "Order placed successfully!");
+        return "cart/viewCart";
+    }
+
+    @PostMapping("/cart/add")
+    public String addToCart(@RequestParam("productId") UUID productId, HttpSession session) {
+        Product product = productService.findProductByIdAndState(productId, true);
+        List<Product> cart = (List<Product>) session.getAttribute("cart");
+
+        if (cart == null) cart = new ArrayList<>();
+        cart.add(product);
+
+
+        session.setAttribute("cart", cart);
+        return "redirect:/customer/homepage"; // Or cart page
+    }
+
+    @GetMapping("/cart/view")
+    public String viewCart(HttpSession session, Model model) {
+        List<Product> cart = (List<Product>) session.getAttribute("cart");
+        model.addAttribute("cart", cart != null ? cart : new ArrayList<>());
+        return "cart/viewCart";
+    }
+
+
+
 }

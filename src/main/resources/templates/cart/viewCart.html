@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Cart - AUCA E-Commerce</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            padding: 2rem;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+
+        .message {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .success { color: green; }
+        .error { color: red; }
+
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        tfoot td {
+            font-weight: bold;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        button, a {
+            padding: 0.7rem 1.2rem;
+            background-color: #2c3e50;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            margin: 0 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        a:hover, button:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Your Shopping Cart</h2>
+
+<!-- Message feedback -->
+<div th:if="${message}" class="message success" th:text="${message}"></div>
+<div th:if="${error}" class="message error" th:text="${error}"></div>
+
+<!-- Cart table -->
+<table th:if="${cart != null and !#lists.isEmpty(cart)}">
+    <thead>
+    <tr>
+        <th>Product</th>
+        <th>Description</th>
+        <th>Price (Frw)</th>
+        <th>Stock</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${cart}">
+        <td th:text="${product.productName}">Product</td>
+        <td th:text="${product.description}">Description</td>
+        <td th:text="${product.price}">0</td>
+        <td th:text="${product.stockState}">IN_STOCK</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="2">Total</td>
+        <td colspan="2" th:text="${#numbers.formatDecimal(total, 0, 'POINT', 2, 'NONE')}">0.00</td>
+    </tr>
+    </tfoot>
+</table>
+
+<!-- If empty -->
+<p th:if="${cart == null or #lists.isEmpty(cart)}" style="text-align: center; font-weight: bold;">
+    Your cart is empty!
+</p>
+
+<!-- Actions -->
+<div class="actions" th:if="${cart != null and !#lists.isEmpty(cart)}">
+    <form th:action="@{/cart/placeOrder}" method="post" style="display:inline;">
+        <button type="submit">Place Order</button>
+    </form>
+    <a th:href="@{/customer/homepage}">Continue Shopping</a>
+</div>
+
+</body>
+</html>

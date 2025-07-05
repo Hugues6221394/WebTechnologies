@@ -1,9 +1,14 @@
 package rw.ac.auca.ecommerce.core.order.service;
 
-import rw.ac.auca.ecommerce.entity.Order;  // <-- Your entity, not JPA criteria Order
+import rw.ac.auca.ecommerce.entity.order.Order;
+
+import java.util.List;
 import java.util.UUID;
 
 public interface IOrderService {
-    int countOrdersBySellerId(UUID sellerId);
-    double calculateTotalRevenueForSeller(UUID sellerId);
+    void saveOrder(Order order);
+    List<Order> getOrdersByCustomer(UUID sellerId);
+
+
+    double getTotalRevenueBySellerId(UUID sellerId);
 }

@@ -9,91 +9,248 @@
       --accent: #27ae60;
       --light: #f4f4f4;
       --text: #333;
+      --voucher-bg: #ff6b6b;
+      --footer-bg: #34495e;
     }
 
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--light);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: white;
       color: var(--text);
+      line-height: 1.6;
     }
 
     header {
-      background-color: var(--primary);
+      background-color: white;
       padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .logo {
       font-size: 1.5rem;
-      color: white;
+      color: var(--primary);
       font-weight: bold;
     }
 
     nav {
       display: flex;
-      gap: 1.5rem;
+      gap: 2rem;
     }
 
     nav a {
-      color: white;
+      color: var(--primary);
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s;
+      padding: 0.5rem 0;
     }
 
     nav a:hover {
       color: var(--accent);
+      border-bottom: 2px solid var(--accent);
     }
 
     .hero {
       text-align: center;
-      padding: 4rem 2rem;
-      background: linear-gradient(to right, #2c3e50, #34495e);
-      color: white;
-    }
-
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .hero p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-    }
-
-    .sections {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      max-width: 1000px;
-      margin: 2rem auto;
-      gap: 1.5rem;
-    }
-
-    .card {
+      padding: 3rem 2rem;
       background-color: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      text-align: center;
-      flex: 1 1 250px;
-    }
-
-    .card h3 {
-      margin-bottom: 1rem;
       color: var(--primary);
     }
 
-    footer {
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #666;
+    }
+
+    .buttons {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .buttons a {
+      padding: 0.8rem 2rem;
+      background-color: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .buttons a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .voucher-banner {
+      background-color: var(--voucher-bg);
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .stats-container {
+      display: flex;
+      justify-content: space-around;
+      background-color: var(--light);
+      padding: 2rem;
+      margin: 2rem 0;
+      border-radius: 10px;
+    }
+
+    .stat-box {
       text-align: center;
       padding: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .product-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .product-info {
+      padding: 1.5rem;
+    }
+
+    .product-info h3 {
+      margin: 0 0 0.5rem 0;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+
+    .product-info p {
+      margin: 0.5rem 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .price {
+      font-weight: bold;
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    .add-to-cart {
+      width: 100%;
+      padding: 0.8rem;
       background-color: var(--primary);
       color: white;
+      border: none;
+      border-radius: 0 0 8px 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .add-to-cart:hover {
+      background-color: var(--accent);
+    }
+
+    .section-title {
+      text-align: center;
+      color: var(--primary);
+      margin: 3rem 0 1rem 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    footer {
+      background-color: var(--footer-bg);
+      color: white;
+      padding: 3rem 2rem;
       margin-top: 4rem;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-column h3 {
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+    }
+
+    .footer-column p, .footer-column a {
+      color: #ddd;
+      margin-bottom: 0.8rem;
+      display: block;
+      text-decoration: none;
+    }
+
+    .footer-column a:hover {
+      color: white;
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .login-panel {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 2rem;
+      max-width: 400px;
+      margin: 2rem auto;
+    }
+
+    .login-panel h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 1.5rem;
     }
   </style>
 </head>
@@ -103,29 +260,82 @@
   <div class="logo">AUCA E-Commerce</div>
   <nav>
     <a th:href="@{/customer/homepage}">Home</a>
+    <a th:href="@{/cart}">My Cart</a>
+    <a th:href="@{/cart/orders}">My Orders</a>
     <a th:href="@{/auth/login}">Logout</a>
   </nav>
 </header>
 
 <section class="hero">
-  <h1>Welcome to AUCA E-Commerce</h1>
+  <h1>Welcome to AUCA Students Online Market</h1>
   <p>Discover amazing products from our platform!</p>
-</section>
 
-<section class="sections">
-  <h2 style="text-align:center; color: var(--primary); width: 100%;">Available Products</h2>
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; padding: 2rem; width: 100%;" th:if="${products != null}">
-    <div class="card" th:each="product : ${products}">
-      <h3 th:text="${product.productName}">Product Name</h3>
-      <p th:text="${product.description}">Product Description</p>
-      <p><strong>Price:</strong> <span th:text="${product.price}"></span> Frw</p>
-      <p><strong>Stock:</strong> <span th:text="${product.stockState}"></span></p>
-    </div>
+  <div class="buttons">
+    <a th:href="@{/cart}">View Cart</a>
+    <a th:href="@{/customer/orders}">View My Orders</a>
   </div>
 </section>
 
+<div class="voucher-banner">
+  Up to 10% off Voucher
+</div>
+
+<div class="stats-container">
+  <div class="stat-box">
+    <div class="stat-number"></div>
+    <div class="stat-label">Finish Sales</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-number"></div>
+    <div class="stat-label">Finish Sales</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-number"></div>
+    <div class="stat-label">Finish Sales</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-number"></div>
+    <div class="stat-label">Finish Sales</div>
+  </div>
+</div>
+
+<h2 class="section-title">Available Products</h2>
+
+<div class="products-grid" th:if="${products != null}">
+  <div class="product-card" th:each="product : ${products}">
+    <div class="product-info">
+      <h3 th:text="${product.productName}">Product Name</h3>
+      <p th:text="${product.description}">Product Description</p>
+      <p class="price">Price: <span th:text="${product.price}"></span> Frw</p>
+      <p>Stock: <span th:text="${product.stockState}"></span></p>
+    </div>
+    <form th:action="@{/cart/add}" method="post">
+      <input type="hidden" name="productId" th:value="${product.id}" />
+      <button type="submit" class="add-to-cart">Add to Cart</button>
+    </form>
+  </div>
+</div>
+
 <footer>
-  &copy; 2025 AUCA E-Commerce. All rights reserved.
+  <div class="footer-content">
+    <div class="footer-column">
+      <h3>Enterprise</h3>
+      <p>MUSIC Experience</p>
+      <p>Enhance Your Music Experience</p>
+    </div>
+    <div class="footer-column">
+      <h3>Furniture</h3>
+      <p>Desi Structures</p>
+    </div>
+    <div class="footer-column">
+      <h3>Contact</h3>
+      <a href="www.music.com">www.music.com</a>
+      <a href="www.facebook.com/music.com">www.facebook.com/music.com</a>
+    </div>
+  </div>
+  <div class="copyright">
+    &copy; 2019 Internet management plc
+  </div>
 </footer>
 
 </body>

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Seller List | Admin</title>
+    <title>Registered Sellers | Admin Panel</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,43 +53,58 @@
         a.back:hover {
             background: #1e8449;
         }
+
+        form button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
 
 <h2>Registered Sellers</h2>
 
-<table>
+<table th:if="${sellers != null and !sellers.isEmpty()}">
     <thead>
     <tr>
         <th>#</th>
         <th>Full Name</th>
         <th>Email</th>
-        <th>Phone Number</th>
+        <th>Phone</th>
         <th>Business Name</th>
         <th>Business Type</th>
+        <th>Action</th>
     </tr>
     </thead>
     <tbody>
-    <td>
-        <form th:action="@{/admin/seller/delete}" method="post" style="display:inline;">
-            <input type="hidden" th:name="id" th:value="${seller.id}" />
-            <button type="submit" style="background:#e74c3c;color:white;border:none;padding:5px 10px;border-radius:4px;">Delete</button>
-        </form>
-    </td>
-    <tr th:each="seller, iterStat : ${sellers}">
-        <td th:text="${iterStat.count}">1</td>
-        <td th:text="${seller.firstName + ' ' + seller.lastName}">John Doe</td>
-        <td th:text="${seller.email}">email@example.com</td>
-        <td th:text="${seller.phoneNumber}">+250...</td>
-        <td th:text="${seller.businessName}">BizName</td>
-        <td th:text="${seller.businessType}">Retail</td>
+    <tr th:each="seller, iter : ${sellers}">
+        <td th:text="${iter.count}">1</td>
+        <td th:text="${seller.firstName + ' ' + seller.lastName}">Full Name</td>
+        <td th:text="${seller.email}">Email</td>
+        <td th:text="${seller.phoneNumber}">Phone</td>
+        <td th:text="${seller.businessName}">Business Name</td>
+        <td th:text="${seller.businessType}">Business Type</td>
+        <td>
+            <form th:action="@{/admin/seller/delete}" method="post">
+                <input type="hidden" name="id" th:value="${seller.id}" />
+                <button type="submit">Delete</button>
+            </form>
+        </td>
     </tr>
-
     </tbody>
 </table>
 
-<a href="/admin/dashboard" class="back">Back to Dashboard</a>
+<p th:if="${sellers == null or sellers.isEmpty()}" style="text-align: center;">No sellers registered yet.</p>
+
+<a href="/admin/dashboard" class="back">← Back to Dashboard</a>
 
 </body>
 </html>
