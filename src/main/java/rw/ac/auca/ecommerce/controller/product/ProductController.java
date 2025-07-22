@@ -2,14 +2,19 @@ package rw.ac.auca.ecommerce.controller.product;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import rw.ac.auca.ecommerce.core.product.model.Product;
+import rw.ac.auca.ecommerce.core.product.service.FileStorageService;
 import rw.ac.auca.ecommerce.core.product.service.IProductService;
 import rw.ac.auca.ecommerce.core.util.product.UserRole;
 import rw.ac.auca.ecommerce.entity.AppUser;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -20,6 +25,9 @@ import java.util.UUID;
 public class ProductController {
 
     private final IProductService productService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     // View all products - accessible to everyone (customers see only active)
     @GetMapping({"", "/", "/search/all"})
@@ -42,8 +50,11 @@ public class ProductController {
 
 
 
+
+
     @PostMapping("/register")
     public String registerProduct(@ModelAttribute("product") Product product,
+                                  @RequestParam("imageFile") MultipartFile imageFile,
                                   Model model,
                                   HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
@@ -53,17 +64,26 @@ public class ProductController {
         }
 
         if (product != null) {
-            product.setSeller(user); //  Important to associate the product with the seller
+            product.setSeller(user);
+
+            // ✅ Use file upload service
+            try {
+                String imagePath = fileStorageService.saveImage(imageFile);
+                product.setImagePath(imagePath);
+            } catch (IOException | IllegalArgumentException e) {
+                model.addAttribute("error", "Image upload failed: " + e.getMessage());
+                return "product/productRegistrationPage";
+            }
+
             productService.createProduct(product);
             model.addAttribute("message", "Product saved successfully!");
         } else {
             model.addAttribute("error", "Failed to save product.");
         }
 
-        model.addAttribute("product", new Product()); // Refresh the form with an empty product
+        model.addAttribute("product", new Product());
         return "product/productRegistrationPage";
     }
-
 
 
     // Delete product (SELLER only)

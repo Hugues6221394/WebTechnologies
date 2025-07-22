@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -31,6 +31,13 @@
             font-weight: 700;
             margin-bottom: 24px;
         }
+        img.product-img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
     </style>
 </head>
 <body class="container mt-4">
@@ -39,12 +46,14 @@
     <a href="/product/register">Add Product</a>
     <a href="/auth/login">Logout</a>
 </nav>
+
 <h2>Product List</h2>
 <a href="/product/register" class="btn btn-primary mb-3">Add New Product</a>
 
 <table class="table table-bordered">
     <thead class="table-dark">
     <tr>
+        <th>Image</th>
         <th>Product Name</th>
         <th>Description</th>
         <th>Price (Frw)</th>
@@ -56,6 +65,13 @@
     </thead>
     <tbody>
     <tr th:each="product : ${products}">
+        <td>
+            <img th:if="${product.imagePath != null}"
+                 th:src="@{'/images/' + ${product.imagePath}}"
+                 alt="Product Image"
+                 class="product-img"/>
+            <span th:if="${product.imagePath == null}">No image</span>
+        </td>
         <td th:text="${product.productName}"></td>
         <td th:text="${product.description}"></td>
         <td th:text="${product.price}"></td>
