@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard - AUCA E-Commerce</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #2c3e50;
@@ -12,6 +13,9 @@
             --card-bg: #ffffff;
             --header-bg: #ffffff;
             --sidebar-bg: #34495e;
+            --chart-1: #3498db;
+            --chart-2: #e74c3c;
+            --chart-3: #9b59b6;
         }
 
         body {
@@ -29,12 +33,21 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
         }
 
         .logo {
             font-size: 1.5rem;
             color: var(--primary);
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--accent);
         }
 
         nav a {
@@ -45,6 +58,9 @@
             padding: 0.5rem 0;
             position: relative;
             transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         nav a:hover {
@@ -72,6 +88,14 @@
             color: var(--primary);
             margin-bottom: 3rem;
             position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .page-title.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .page-title h1 {
@@ -80,14 +104,26 @@
             margin-bottom: 0.5rem;
         }
 
+        .page-title p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
         .page-title::after {
             content: '';
             display: block;
             width: 80px;
             height: 4px;
             background-color: var(--accent);
-            margin: 0 auto;
+            margin: 1rem auto 0;
             border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .page-title:hover::after {
+            width: 120px;
         }
 
         .dashboard-grid {
@@ -105,11 +141,48 @@
             text-align: center;
             transition: all 0.3s ease;
             border-top: 4px solid var(--accent);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
         }
 
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) !important;
             box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover i {
+            transform: scale(1.2) rotate(10deg);
         }
 
         .card h3 {
@@ -145,11 +218,35 @@
             border-radius: 10px;
             margin-bottom: 3rem;
             box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .stats-bar.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .stat-item {
             text-align: center;
             padding: 0 1rem;
+            position: relative;
+        }
+
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 50px;
+            width: 1px;
+            background-color: #eee;
+        }
+
+        .stat-item:last-child::after {
+            display: none;
         }
 
         .stat-number {
@@ -157,6 +254,11 @@
             font-weight: bold;
             color: var(--accent);
             margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .stat-item:hover .stat-number {
+            color: var(--primary);
         }
 
         .stat-label {
@@ -177,6 +279,116 @@
             color: rgba(255,255,255,0.7);
         }
 
+        /* Chart container */
+        .chart-container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin: 2rem 0;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .chart-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--accent);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification i {
+            font-size: 1.2rem;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(39, 174, 96, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animated background elements */
+        .bg-element {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .bg-element-1 {
+            width: 300px;
+            height: 300px;
+            background-color: var(--chart-1);
+            top: -150px;
+            right: -150px;
+        }
+
+        .bg-element-2 {
+            width: 200px;
+            height: 200px;
+            background-color: var(--chart-2);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -194,70 +406,107 @@
             nav a {
                 margin: 0 0.5rem;
             }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .stat-item::after {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+
+<!-- Animated background elements -->
+<div class="bg-element bg-element-1"></div>
+<div class="bg-element bg-element-2"></div>
+
+<!-- Notification -->
+<div class="notification" id="notification">
+    <i class="fas fa-bell"></i>
+    <span id="notificationText">Welcome to Admin Dashboard!</span>
+</div>
 
 <header>
-    <div class="logo">Admin Panel - AUCA E-Commerce</div>
+    <div class="logo">
+        <i class="fas fa-cog"></i>
+        <span>Admin Panel - AUCA E-Commerce</span>
+    </div>
     <nav>
-        <a th:href="@{/admin/login}">Logout</a>
+        <a th:href="@{/admin/login}"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </nav>
 </header>
 
 <div class="container">
-    <div class="page-title">
+    <div class="page-title" id="pageTitle">
         <h1>Welcome, Admin</h1>
         <p>Manage your e-commerce platform efficiently</p>
     </div>
 
-    <div class="stats-bar">
+    <div class="stats-bar" id="statsBar">
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number" id="totalProducts">0</div>
             <div class="stat-label">Total Products</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number" id="activeCustomers">0</div>
             <div class="stat-label">Active Customers</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number" id="registeredSellers">0</div>
             <div class="stat-label">Registered Sellers</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">0</div>
+            <div class="stat-number" id="totalSales">0</div>
             <div class="stat-label">Total Sales</div>
         </div>
     </div>
 
-    <div class="dashboard-grid">
+    <!-- Performance Chart -->
+    <div class="chart-container" id="performanceChart">
+        <canvas id="adminChart"></canvas>
+    </div>
+
+    <div class="dashboard-grid" id="dashboardGrid">
         <div class="card">
+            <i class="fas fa-boxes"></i>
             <h3>All Products</h3>
             <a th:href="@{/admin/products}">View Products</a>
         </div>
 
         <div class="card">
+            <i class="fas fa-plus-circle"></i>
             <h3>Add Product</h3>
             <a th:href="@{/product/register}">Add New Product</a>
         </div>
 
         <div class="card">
+            <i class="fas fa-users"></i>
             <h3>All Customers</h3>
             <a th:href="@{/admin/customers}">View Customers</a>
         </div>
 
         <div class="card">
+            <i class="fas fa-user-plus"></i>
             <h3>Register Customer</h3>
             <a th:href="@{/customer/register}">Add Customer</a>
         </div>
 
         <div class="card">
+            <i class="fas fa-store"></i>
             <h3>Registered Sellers</h3>
             <a th:href="@{/admin/sellers}">View Sellers</a>
         </div>
 
         <div class="card">
+            <i class="fas fa-user-tie"></i>
             <h3>Register Seller</h3>
             <a th:href="@{/seller/register}">Add Seller</a>
         </div>
@@ -270,5 +519,193 @@
     </div>
 </footer>
 
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simulate loading (remove in production)
+        setTimeout(function() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+
+            // Initialize animations
+            initAnimations();
+
+            // Initialize notification
+            initNotification();
+
+            // Initialize chart
+            initAdminChart();
+
+            // Initialize stats counters
+            initStatsCounters();
+
+            // Initialize background animation
+            animateBackgroundElements();
+        }, 1500);
+    });
+
+    function initAnimations() {
+        // Show page title
+        document.getElementById('pageTitle').classList.add('visible');
+
+        // Show stats bar
+        setTimeout(() => {
+            document.getElementById('statsBar').classList.add('visible');
+        }, 300);
+
+        // Show chart
+        setTimeout(() => {
+            document.getElementById('performanceChart').classList.add('visible');
+        }, 600);
+
+        // Show dashboard cards with staggered delay
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('visible');
+            }, 900 + (index * 100));
+        });
+    }
+
+    function initNotification() {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+
+        // Show welcome notification
+        setTimeout(() => {
+            notification.classList.add('show');
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }, 2000);
+
+        // You could add notifications for important events
+    }
+
+    function initAdminChart() {
+        const ctx = document.getElementById('adminChart').getContext('2d');
+
+        // Sample data - in a real app you would fetch this from your backend
+        const adminData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [
+                {
+                    label: 'New Customers',
+                    data: [15, 25, 22, 30, 27, 40, 35],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'New Sellers',
+                    data: [5, 8, 6, 12, 10, 15, 18],
+                    backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                    borderColor: 'rgba(155, 89, 182, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'New Products',
+                    data: [20, 35, 30, 45, 50, 60, 55],
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        };
+
+        const adminChart = new Chart(ctx, {
+            type: 'line',
+            data: adminData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+    }
+
+    function initStatsCounters() {
+        // Sample values - replace with your actual data
+        const stats = {
+            totalProducts: 245,
+            activeCustomers: 189,
+            registeredSellers: 42,
+            totalSales: 1250
+        };
+
+        // Animate counting numbers
+        animateValue(document.getElementById('totalProducts'), 0, stats.totalProducts, 2000);
+        animateValue(document.getElementById('activeCustomers'), 0, stats.activeCustomers, 2000);
+        animateValue(document.getElementById('registeredSellers'), 0, stats.registeredSellers, 2000);
+        animateValue(document.getElementById('totalSales'), 0, stats.totalSales, 2000);
+
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    }
+
+    function animateBackgroundElements() {
+        const elements = document.querySelectorAll('.bg-element');
+
+        elements.forEach((el, index) => {
+            // Initial random positioning
+            const randomX = Math.random() * 20 - 10;
+            const randomY = Math.random() * 20 - 10;
+            el.style.transform = `translate(${randomX}px, ${randomY}px)`;
+
+            // Animate with slight floating movement
+            setInterval(() => {
+                const newX = Math.random() * 20 - 10;
+                const newY = Math.random() * 20 - 10;
+                el.style.transition = 'transform 8s ease-in-out';
+                el.style.transform = `translate(${newX}px, ${newY}px)`;
+            }, 8000 + index * 2000);
+        });
+    }
+
+    // You could add more functionality here:
+    // - Real-time updates with WebSocket
+    // - AJAX calls to refresh data
+    // - More detailed analytics
+</script>
 </body>
 </html>

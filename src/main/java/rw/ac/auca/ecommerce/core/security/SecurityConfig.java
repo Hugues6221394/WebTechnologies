@@ -33,8 +33,8 @@ public class SecurityConfig {
                                 "/admin/**"
                         ).permitAll()
 
-                        .requestMatchers("/cart/**", "/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/cart/**", "/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
+                        .requestMatchers("/cart/**", "/orders/**","/customer/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/cart/**", "/customer/orders/**", "/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
 
                         .anyRequest().authenticated()
                 )

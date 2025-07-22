@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Seller Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #2c3e50;
@@ -12,6 +13,9 @@
             --card-bg: #ffffff;
             --header-bg: #ffffff;
             --nav-bg: #34495e;
+            --chart-1: #3498db;
+            --chart-2: #e74c3c;
+            --chart-3: #9b59b6;
         }
 
         body {
@@ -28,6 +32,8 @@
             padding: 2rem;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
         }
 
         header h1 {
@@ -35,6 +41,8 @@
             font-size: 2.2rem;
             margin: 0;
             font-weight: 600;
+            position: relative;
+            z-index: 2;
         }
 
         nav {
@@ -44,6 +52,8 @@
             justify-content: center;
             gap: 2rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 2;
         }
 
         nav a {
@@ -53,6 +63,9 @@
             padding: 0.5rem 0;
             position: relative;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         nav a:hover {
@@ -92,6 +105,11 @@
             width: 60px;
             height: 3px;
             background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .section-title:hover::after {
+            width: 100px;
         }
 
         .summary-boxes {
@@ -109,10 +127,35 @@
             text-align: center;
             transition: all 0.3s ease;
             border-top: 4px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .box.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .box:hover::before {
+            opacity: 1;
         }
 
         .box:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) !important;
             box-shadow: 0 10px 25px rgba(0,0,0,0.12);
         }
 
@@ -128,6 +171,11 @@
             font-weight: bold;
             color: var(--primary);
             margin: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .box:hover p {
+            transform: scale(1.05);
         }
 
         .box p span {
@@ -138,6 +186,17 @@
             color: var(--accent);
         }
 
+        .box-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            transition: transform 0.3s ease;
+        }
+
+        .box:hover .box-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -146,12 +205,21 @@
             margin: 2rem 0;
             border-radius: 8px;
             overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        table.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         th, td {
             padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
         }
 
         th {
@@ -163,8 +231,16 @@
             letter-spacing: 0.5px;
         }
 
+        tr {
+            transition: background-color 0.2s ease;
+        }
+
         tr:hover {
             background-color: rgba(39, 174, 96, 0.05);
+        }
+
+        tr:hover td {
+            background-color: rgba(39, 174, 96, 0.03);
         }
 
         .no-orders {
@@ -175,6 +251,14 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             color: #666;
             font-size: 1.1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .no-orders.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         footer {
@@ -190,6 +274,108 @@
             color: rgba(255,255,255,0.7);
         }
 
+        /* Chart container */
+        .chart-container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin: 2rem 0;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Floating notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--accent);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification i {
+            font-size: 1.2rem;
+        }
+
+        /* Loading animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(39, 174, 96, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animated background elements */
+        .bg-element {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .bg-element-1 {
+            width: 300px;
+            height: 300px;
+            background-color: var(--chart-1);
+            top: -150px;
+            right: -150px;
+        }
+
+        .bg-element-2 {
+            width: 200px;
+            height: 200px;
+            background-color: var(--chart-2);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             nav {
                 flex-direction: column;
@@ -210,38 +396,62 @@
     </style>
 </head>
 <body>
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+
+<!-- Animated background elements -->
+<div class="bg-element bg-element-1"></div>
+<div class="bg-element bg-element-2"></div>
+
+<!-- Notification -->
+<div class="notification" id="notification">
+    <i class="fas fa-bell"></i>
+    <span id="notificationText">Welcome back to your dashboard!</span>
+</div>
+
 <header>
     <h1>Welcome to Seller Dashboard</h1>
 </header>
 
 <nav>
-    <a th:href="@{/seller/dashboard}">Home</a>
-    <a th:href="@{/product/register}">Add Product</a>
-    <a th:href="@{/product/search/all}">View My Products</a>
-    <a th:href="@{/seller/dashboard}">Orders</a>
-    <a th:href="@{/auth/login}">Logout</a>
+    <a th:href="@{/seller/dashboard}"><i class="fas fa-home"></i> Home</a>
+    <a th:href="@{/product/register}"><i class="fas fa-plus-circle"></i> Add Product</a>
+    <a th:href="@{/product/search/all}"><i class="fas fa-box-open"></i> View My Products</a>
+    <a th:href="@{/seller/dashboard}"><i class="fas fa-clipboard-list"></i> Orders</a>
+    <a th:href="@{/auth/login}"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </nav>
 
 <div class="container">
     <h2 class="section-title">Quick Overview</h2>
     <div class="summary-boxes">
         <div class="box">
+            <div class="box-icon"><i class="fas fa-boxes"></i></div>
             <h3>Total Products</h3>
             <p th:text="${totalProducts}">0</p>
         </div>
         <div class="box">
+            <div class="box-icon"><i class="fas fa-shopping-cart"></i></div>
             <h3>Total Orders</h3>
             <p th:text="${orderCount}">0</p>
         </div>
         <div class="box revenue-box">
+            <div class="box-icon"><i class="fas fa-chart-line"></i></div>
             <h3>Total Revenue</h3>
             <p>$<span th:text="${totalRevenue}">0.00</span></p>
         </div>
     </div>
 
+    <!-- Sales Chart -->
+    <h2 class="section-title">Sales Performance</h2>
+    <div class="chart-container">
+        <canvas id="salesChart"></canvas>
+    </div>
+
     <h2 class="section-title">Recent Orders on Your Products</h2>
 
-    <table th:if="${sellerOrders != null and !#lists.isEmpty(sellerOrders)}">
+    <table th:if="${sellerOrders != null and !#lists.isEmpty(sellerOrders)}" id="ordersTable">
         <thead>
         <tr>
             <th>Customer</th>
@@ -249,6 +459,7 @@
             <th>Quantity</th>
             <th>Total Price</th>
             <th>Order Date</th>
+            <th>Status</th>
         </tr>
         </thead>
         <tbody>
@@ -258,12 +469,15 @@
             <td th:text="${order.quantity}">1</td>
             <td th:text="${'$' + order.totalPrice}">$0.00</td>
             <td th:text="${#dates.format(order.orderDate, 'dd MMM yyyy')}">01 Jan 2025</td>
+            <td><span class="status-badge">Processing</span></td>
         </tr>
         </tbody>
     </table>
 
-    <div class="no-orders" th:if="${sellerOrders == null or #lists.isEmpty(sellerOrders)}">
-        No orders placed on your products yet.
+    <div class="no-orders" th:if="${sellerOrders == null or #lists.isEmpty(sellerOrders)}" id="noOrders">
+        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+        <p>No orders placed on your products yet.</p>
+        <p>Start promoting your products to get more sales!</p>
     </div>
 </div>
 
@@ -272,5 +486,215 @@
         &copy; 2025 AUCA E-Commerce Platform - Seller Portal
     </div>
 </footer>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simulate loading (remove in production)
+        setTimeout(function() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+
+            // Initialize animations
+            initAnimations();
+
+            // Initialize notification
+            initNotification();
+
+            // Initialize chart
+            initSalesChart();
+
+            // Initialize interactive elements
+            initInteractiveElements();
+        }, 1500);
+    });
+
+    function initAnimations() {
+        // Animate summary boxes with staggered delay
+        const boxes = document.querySelectorAll('.box');
+        boxes.forEach((box, index) => {
+            setTimeout(() => {
+                box.classList.add('visible');
+            }, index * 200);
+        });
+
+        // Animate table or no orders message
+        setTimeout(() => {
+            const ordersTable = document.getElementById('ordersTable');
+            const noOrders = document.getElementById('noOrders');
+
+            if (ordersTable) ordersTable.classList.add('visible');
+            if (noOrders) noOrders.classList.add('visible');
+        }, 600);
+
+        // Animate background elements
+        animateBackgroundElements();
+    }
+
+    function initNotification() {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+
+        // Show welcome notification
+        setTimeout(() => {
+            notification.classList.add('show');
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }, 2000);
+
+        // You could add more notifications based on events
+    }
+
+    function initSalesChart() {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+
+        // Sample data - in a real app you would fetch this from your backend
+        const salesData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [
+                {
+                    label: 'Products Sold',
+                    data: [12, 19, 15, 27, 22, 30, 25],
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Revenue ($)',
+                    data: [240, 380, 300, 540, 440, 600, 500],
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y1'
+                }
+            ]
+        };
+
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: salesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Products Sold'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        title: {
+                            display: true,
+                            text: 'Revenue ($)'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+    }
+
+    function initInteractiveElements() {
+        // Add hover effect to table rows
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(5px)';
+                row.style.boxShadow = '5px 0 15px rgba(0,0,0,0.1)';
+            });
+
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+                row.style.boxShadow = 'none';
+            });
+        });
+
+        // Add status badges with different colors
+        const statusBadges = document.querySelectorAll('.status-badge');
+        statusBadges.forEach(badge => {
+            const status = badge.textContent.trim();
+
+            switch(status.toLowerCase()) {
+                case 'processing':
+                    badge.style.backgroundColor = 'rgba(241, 196, 15, 0.2)';
+                    badge.style.color = '#f39c12';
+                    break;
+                case 'shipped':
+                    badge.style.backgroundColor = 'rgba(52, 152, 219, 0.2)';
+                    badge.style.color = '#3498db';
+                    break;
+                case 'delivered':
+                    badge.style.backgroundColor = 'rgba(46, 204, 113, 0.2)';
+                    badge.style.color = '#2ecc71';
+                    break;
+                case 'cancelled':
+                    badge.style.backgroundColor = 'rgba(231, 76, 60, 0.2)';
+                    badge.style.color = '#e74c3c';
+                    break;
+                default:
+                    badge.style.backgroundColor = 'rgba(149, 165, 166, 0.2)';
+                    badge.style.color = '#95a5a6';
+            }
+
+            badge.style.padding = '5px 10px';
+            badge.style.borderRadius = '20px';
+            badge.style.fontSize = '0.8rem';
+            badge.style.fontWeight = '500';
+            badge.style.display = 'inline-block';
+        });
+    }
+
+    function animateBackgroundElements() {
+        const elements = document.querySelectorAll('.bg-element');
+
+        elements.forEach((el, index) => {
+            // Initial random positioning
+            const randomX = Math.random() * 20 - 10;
+            const randomY = Math.random() * 20 - 10;
+            el.style.transform = `translate(${randomX}px, ${randomY}px)`;
+
+            // Animate with slight floating movement
+            setInterval(() => {
+                const newX = Math.random() * 20 - 10;
+                const newY = Math.random() * 20 - 10;
+                el.style.transition = 'transform 8s ease-in-out';
+                el.style.transform = `translate(${newX}px, ${newY}px)`;
+            }, 8000 + index * 2000);
+        });
+    }
+
+    // You could add more functions here for additional interactivity
+    // For example:
+    // - Real-time updates with WebSocket
+    // - AJAX calls to refresh data
+    // - More detailed analytics
+</script>
 </body>
 </html>

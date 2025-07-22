@@ -236,6 +236,23 @@ public class CustomerController {
         return "cart/viewCart";
     }
 
+    @GetMapping("/orders")
+    public String viewOrders(HttpSession session, Model model) {
+        AppUser user = (AppUser) session.getAttribute("loggedInUser");
+
+        if (user == null || user.getRole() != UserRole.CUSTOMER) {
+            return "redirect:/auth/login";
+        }
+
+        // Fetch orders for this customer
+        List<Order> orders = orderService.getOrdersByCustomer(user.getId());
+
+        model.addAttribute("orders", orders);
+        return "cart/viewOrders";
+    }
+
+
+
 
 
 }

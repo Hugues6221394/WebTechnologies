@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #333;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .no-orders {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>My Orders</h2>
+
+<div th:if="${#lists.isEmpty(orders)}">
+    <p class="no-orders">You haven't placed any orders yet.</p>
+</div>
+
+<div th:unless="${#lists.isEmpty(orders)}">
+    <table>
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}">1</td>
+            <td th:text="${#temporals.format(order.createdAt, 'dd-MM-yyyy HH:mm')}">19-07-2025</td>
+            <td th:text="${order.product.name}">Sample Product</td>
+            <td th:text="${order.quantity}">2</td>
+            <td th:text="${order.totalPrice}">10000 RWF</td>
+            <td th:text="${order.status}">PENDING</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
