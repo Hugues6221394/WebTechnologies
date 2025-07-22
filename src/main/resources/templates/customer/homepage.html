@@ -305,11 +305,12 @@
   <div class="product-card" th:each="product : ${products}">
 
     <img th:if="${product.imagePath != null}"
-         th:src="@{/images/{img}(img=${product.imagePath})}"
+         th:src="${product.imagePath}"
          alt="Product Image"
          style="width: 100%; height: 200px; object-fit: cover;" />
+
     <img th:unless="${product.imagePath != null}"
-         th:src="@{/images/default.png}"
+         th:src="@{/images/default.jpg}"
          alt="Default Product Image"
          style="width: 100%; height: 200px; object-fit: cover;" />
 
