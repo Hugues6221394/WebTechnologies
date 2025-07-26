@@ -237,18 +237,16 @@ public class CustomerController {
     }
 
     @GetMapping("/orders")
-    public String viewOrders(HttpSession session, Model model) {
+    public String viewCustomerOrders(HttpSession session, Model model) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
 
         if (user == null || user.getRole() != UserRole.CUSTOMER) {
             return "redirect:/auth/login";
         }
 
-        // Fetch orders for this customer
-        List<Order> orders = orderService.getOrdersByCustomer(user.getId());
-
+        List<Order> orders = orderService.getCustomerOrders(user.getId());
         model.addAttribute("orders", orders);
-        return "cart/viewOrders";
+        return "orders/orders"; // This will be our new Thymeleaf template
     }
 
 

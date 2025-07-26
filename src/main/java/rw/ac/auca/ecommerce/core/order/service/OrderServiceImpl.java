@@ -30,6 +30,11 @@ public class OrderServiceImpl implements IOrderService {
         return orderRepository.findOrdersBySellerId(sellerId);
     }
 
+    @Override
+    public List<Order> getCustomerOrders(UUID customerId) {
+        return orderRepository.findByCustomerIdOrderByOrderDateDesc(customerId);
+    }
+
 
     @Override
     public double getTotalRevenueBySellerId(UUID sellerId) {

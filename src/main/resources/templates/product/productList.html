@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <title>All Products</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: #fff;
+            background: #f8f9fa;
             font-family: 'Segoe UI', Arial, sans-serif;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
         nav {
             background: #fff;
-            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 32px;
-            padding: 16px 0 8px 0;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         nav a {
             color: #2c3e50;
@@ -21,34 +27,190 @@
             margin-right: 24px;
             font-weight: 600;
             font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 5px;
         }
         nav a:hover {
-            color: #007bff;
-            text-decoration: underline;
+            color: #27ae60;
+            text-decoration: none;
+        }
+        nav a:hover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #27ae60;
+            transform: scaleX(1);
+        }
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #27ae60;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
         h2 {
             color: #2c3e50;
             font-weight: 700;
             margin-bottom: 24px;
+            position: relative;
+            display: inline-block;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: #27ae60;
+            transition: width 0.3s ease;
+        }
+        h2:hover::after {
+            width: 100px;
         }
         img.product-img {
-            max-width: 100px;
-            max-height: 100px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
             border: 1px solid #ddd;
+            border-radius: 4px;
             padding: 5px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        img.product-img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .table thead th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: 600;
+            border: none;
+        }
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+        .table tbody tr:hover {
+            background-color: rgba(39, 174, 96, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background-color: #27ae60;
+            border-color: #27ae60;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #219653;
+            border-color: #219653;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        .btn-warning, .btn-danger {
+            transition: all 0.3s ease;
+        }
+        .btn-warning:hover, .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .no-image {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: #f1f1f1;
+            border-radius: 4px;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(39, 174, 96, 0.2);
+            border-radius: 50%;
+            border-top-color: #27ae60;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .floating-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .floating-notification.show {
+            transform: translateX(0);
         }
     </style>
 </head>
 <body class="container mt-4">
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+
+<!-- Floating notification -->
+<div class="floating-notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notificationText">Products loaded successfully</span>
+</div>
+
 <nav>
-    <a href="/seller/dashboard">Home</a>
-    <a href="/product/register">Add Product</a>
-    <a href="/auth/login">Logout</a>
+    <a href="/seller/dashboard"><i class="fas fa-home"></i> Home</a>
+    <a href="/product/register"><i class="fas fa-plus-circle"></i> Add Product</a>
+    <a href="/auth/login"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </nav>
 
 <h2>Product List</h2>
-<a href="/product/register" class="btn btn-primary mb-3">Add New Product</a>
+<a href="/product/register" class="btn btn-primary mb-3">
+    <i class="fas fa-plus"></i> Add New Product
+</a>
 
 <table class="table table-bordered">
     <thead class="table-dark">
@@ -70,7 +232,9 @@
                  th:src="@{'/images/' + ${product.imagePath}}"
                  alt="Product Image"
                  class="product-img"/>
-            <span th:if="${product.imagePath == null}">No image</span>
+            <span th:if="${product.imagePath == null}" class="no-image">
+                <i class="fas fa-image"></i> No image
+            </span>
         </td>
         <td th:text="${product.productName}"></td>
         <td th:text="${product.description}"></td>
@@ -81,17 +245,212 @@
         <td>
             <form th:action="@{/product/update}" method="post" style="display:inline;">
                 <input type="hidden" name="id" th:value="${product.id}"/>
-                <button type="submit" class="btn btn-sm btn-warning">Edit</button>
+                <button type="submit" class="btn btn-sm btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
             </form>
 
             <form th:action="@{/product/delete}" method="post" style="display:inline;"
-                  onsubmit="return confirm('Are you sure you want to delete this product?');">
+                  onsubmit="return confirmDelete(this);">
                 <input type="hidden" name="id" th:value="${product.id}"/>
-                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                <button type="submit" class="btn btn-sm btn-danger">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
             </form>
         </td>
     </tr>
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show loading overlay
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Fade in body content
+        document.body.style.opacity = '1';
+
+        // Hide loading overlay after content loads
+        setTimeout(function() {
+            loadingOverlay.classList.add('hidden');
+
+            // Show notification
+            showNotification('Products loaded successfully', 'success');
+
+            // Initialize table row animations
+            initTableAnimations();
+
+            // Initialize button hover effects
+            initButtonEffects();
+
+            // Initialize navigation effects
+            initNavEffects();
+        }, 1000);
+    });
+
+    function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+
+        notificationText.textContent = message;
+
+        // Set notification color based on type
+        if (type === 'success') {
+            notification.style.backgroundColor = '#27ae60';
+        } else if (type === 'error') {
+            notification.style.backgroundColor = '#e74c3c';
+        } else {
+            notification.style.backgroundColor = '#3498db';
+        }
+
+        // Show notification
+        notification.classList.add('show');
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    function initTableAnimations() {
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        // Add staggered fade-in animation
+        tableRows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, 100 + (index * 50));
+        });
+
+        // Enhanced hover effects
+        tableRows.forEach(row => {
+            const img = row.querySelector('.product-img');
+            const buttons = row.querySelectorAll('button');
+
+            row.addEventListener('mouseenter', () => {
+                if (img) {
+                    img.style.transform = 'scale(1.1)';
+                    img.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                }
+                buttons.forEach(btn => {
+                    btn.style.transform = 'scale(1.05)';
+                });
+            });
+
+            row.addEventListener('mouseleave', () => {
+                if (img) {
+                    img.style.transform = 'scale(1)';
+                    img.style.boxShadow = 'none';
+                }
+                buttons.forEach(btn => {
+                    btn.style.transform = 'scale(1)';
+                });
+            });
+        });
+    }
+
+    function initButtonEffects() {
+        const buttons = document.querySelectorAll('.btn');
+
+        buttons.forEach(button => {
+            // Add pulse animation on page load
+            setTimeout(() => {
+                button.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 300);
+            }, 1500);
+
+            // Enhanced hover effects
+            button.addEventListener('mouseenter', () => {
+                button.style.transform = 'translateY(-2px)';
+                if (button.classList.contains('btn-primary')) {
+                    button.style.boxShadow = '0 5px 15px rgba(39, 174, 96, 0.3)';
+                } else {
+                    button.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                }
+            });
+
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = 'none';
+            });
+
+            // Click effect
+            button.addEventListener('mousedown', () => {
+                button.style.transform = 'translateY(1px)';
+            });
+
+            button.addEventListener('mouseup', () => {
+                button.style.transform = 'translateY(-2px)';
+            });
+        });
+    }
+
+    function initNavEffects() {
+        const navLinks = document.querySelectorAll('nav a');
+
+        navLinks.forEach(link => {
+            // Add initial animation
+            setTimeout(() => {
+                link.style.transform = 'translateY(-5px)';
+                setTimeout(() => {
+                    link.style.transform = 'translateY(0)';
+                }, 300);
+            }, 500);
+
+            // Active link detection
+            if (link.href === window.location.href) {
+                link.style.color = '#27ae60';
+                link.querySelector('i').style.color = '#27ae60';
+                link.style.fontWeight = '700';
+            }
+        });
+    }
+
+    function confirmDelete(form) {
+        // Enhanced confirmation dialog
+        const productName = form.closest('tr').querySelector('td:nth-child(2)').textContent;
+
+        if (confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+            showNotification(`Deleting ${productName}...`, 'warning');
+
+            // Add loading state to button
+            const button = form.querySelector('button');
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+            button.disabled = true;
+
+            // Simulate API delay (remove in production)
+            setTimeout(() => {
+                form.submit();
+            }, 800);
+
+            return false; // Prevent immediate form submission
+        }
+        return false;
+    }
+
+    // Add subtle background animation
+    function initBackgroundAnimation() {
+        const body = document.body;
+        const colors = ['#f8f9fa', '#f1f8fe', '#f1fdf5'];
+        let currentIndex = 0;
+
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % colors.length;
+            body.style.transition = 'background 1.5s ease';
+            body.style.background = colors[currentIndex];
+        }, 5000);
+    }
+
+    // Initialize background animation
+    initBackgroundAnimation();
+</script>
 </body>
 </html>

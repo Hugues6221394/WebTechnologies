@@ -24,17 +24,20 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/auth/**",
+                                "/customer/homepage",
                                 "/customer/**",
                                 "/seller/**",
                                 "/product/**",
                                 "/css/**",
                                 "/js/**",
+                                "/cart/**",
+                                "/orders/**",
                                 "/images/**",
                                 "/admin/**"
                         ).permitAll()
 
-                        .requestMatchers("/cart/**", "/orders/**","/customer/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/cart/**", "/customer/orders/**", "/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
+                        .requestMatchers("/cart/**","/customer/homepage", "/orders/**","/customer/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/cart/**","/customer/homepage", "/customer/orders/**", "/orders/**","/seller/dashboard/**","admin/login/**","admin/dashboard/**").permitAll()
 
                         .anyRequest().authenticated()
                 )

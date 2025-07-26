@@ -11,4 +11,6 @@ public interface IOrderService {
 
 
     double getTotalRevenueBySellerId(UUID sellerId);
+
+    List<Order> getCustomerOrders(UUID id);
 }
