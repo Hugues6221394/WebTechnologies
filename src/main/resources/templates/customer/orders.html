@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>My Orders - AUCA E-Commerce</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent: #27ae60;
+      --light: #f5f7fa;
+      --text: #333;
+      --error: #e74c3c;
+      --success: #2ecc71;
+      --warning: #f39c12;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--light);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.8rem 1.5rem;
+      background-color: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .order-card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .order-id {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .order-date {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+    }
+
+    .order-status {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .status-processing {
+      background-color: #cce5ff;
+      color: #004085;
+    }
+
+    .status-shipped {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-completed {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status-cancelled {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .order-details {
+      padding: 1.5rem;
+    }
+
+    .order-items {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .order-items th {
+      text-align: left;
+      padding: 0.8rem;
+      border-bottom: 1px solid #eee;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .order-items td {
+      padding: 1rem 0.8rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .order-items tr:last-child td {
+      border-bottom: none;
+    }
+
+    .product-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .product-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+
+    .order-total {
+      display: flex;
+      justify-content: flex-end;
+      padding: 1rem 1.5rem;
+      background-color: #f8f9fa;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .no-orders {
+      text-align: center;
+      padding: 3rem;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .no-orders i {
+      font-size: 3rem;
+      color: #ddd;
+      margin-bottom: 1rem;
+    }
+
+    .no-orders h3 {
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .no-orders p {
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .shop-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.8rem 1.5rem;
+      background-color: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .shop-btn:hover {
+      background-color: #219955;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .product-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .product-image {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    /* Add these new styles for the discard button */
+    .order-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 1.5rem 1.5rem;
+      gap: 1rem;
+    }
+
+    .discard-btn {
+      padding: 0.6rem 1.2rem;
+      background-color: var(--error);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 1;
+    }
+
+    .discard-btn:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .discard-btn:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+      transform: none;
+      opacity: 0.7; /* Make it visually apparent it's disabled */
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .modal-btn {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .modal-confirm {
+      background-color: var(--error);
+      color: white;
+    }
+
+    .modal-cancel {
+      background-color: #bdc3c7;
+    }
+  </style>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>My Orders</h1>
+    <a th:href="@{/customer/homepage}" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Shop
+    </a>
+  </div>
+
+  <!-- No Orders -->
+  <div th:if="${#lists.isEmpty(orders)}" class="no-orders">
+    <i class="fas fa-box-open"></i>
+    <h3>No Orders Yet</h3>
+    <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
+    <a th:href="@{/customer/homepage}" class="shop-btn">
+      <i class="fas fa-shopping-bag"></i> Browse Products
+    </a>
+  </div>
+
+  <!-- Orders List -->
+  <div th:unless="${#lists.isEmpty(orders)}">
+    <div class="order-card" th:each="order : ${orders}" th:attr="data-status=${order.status.name().toLowerCase()}">
+
+      <!-- Order Header -->
+      <div class="order-header">
+        <div>
+          <div class="order-id">Order #<span th:text="${order.id}">12345</span></div>
+          <div class="order-date" th:text="${#temporals.format(order.orderDate, 'MMMM dd, yyyy HH:mm')}">
+            July 19, 2023 14:30
+          </div>
+        </div>
+        <div th:classappend="'status-' + ${order.status.name().toLowerCase()}"
+             class="order-status"
+             th:text="${order.status}">PENDING
+        </div>
+      </div>
+
+      <!-- Order Items Table -->
+      <div class="order-details">
+        <table class="order-items">
+          <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="item : ${order.items}">
+            <td>
+              <div class="product-info">
+                <img th:if="${item.product.imagePath != null}"
+                     th:src="${item.product.imagePath}"
+                     class="product-image"
+                     alt="Product Image">
+                <img th:unless="${item.product.imagePath != null}"
+                     th:src="@{/images/default.jpg}"
+                     class="product-image"
+                     alt="Default Product Image">
+                <div class="product-name" th:text="${item.product.productName}">Product Name</div>
+              </div>
+            </td>
+            <td th:text="${'RWF ' + #numbers.formatDecimal(item.price, 1, 'COMMA', 2, 'POINT')}">RWF 5,000</td>
+            <td th:text="${item.quantity}">1</td>
+            <td th:text="${'RWF ' + #numbers.formatDecimal(item.price * item.quantity, 1, 'COMMA', 2, 'POINT')}">RWF 5,000</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Order Total -->
+      <div class="order-total">
+        <span>Order Total: </span>
+        <span th:text="${'RWF ' + #numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}">RWF 5,000</span>
+      </div>
+
+      <!-- Order Actions -->
+      <div class="order-actions">
+        <button class="discard-btn"
+                th:disabled="${order.status != T(rw.ac.auca.ecommerce.entity.order.OrderStatus).PENDING}"
+                th:attr="data-order-id=${order.id}"
+                onclick="showDiscardModal(this)">
+          <i class="fas fa-trash-alt"></i> Discard Order
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Discard Confirmation Modal -->
+<div id="discardModal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Order Discard</h3>
+    <p>Are you sure you want to discard this order? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="hideDiscardModal()">Cancel</button>
+      <button class="modal-btn modal-confirm" onclick="discardOrder()">Discard Order</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentOrderId = null;
+
+  function showDiscardModal(button) {
+    // Only proceed if button is not disabled
+    if (button.disabled) return;
+
+    currentOrderId = button.getAttribute('data-order-id');
+    document.getElementById('discardModal').style.display = 'flex';
+  }
+
+  function hideDiscardModal() {
+    document.getElementById('discardModal').style.display = 'none';
+    currentOrderId = null;
+  }
+
+  function discardOrder() {
+    if (!currentOrderId) return;
+
+    // Get CSRF token from meta tag
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    fetch(`/customer/orders/${currentOrderId}/discard`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        [csrfHeader]: csrfToken  // Dynamic header name using computed property
+      }
+    })
+            .then(response => {
+              if (response.ok) {
+                window.location.reload();
+              } else {
+                response.text().then(text => alert(text || 'Failed to discard order'));
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred while discarding the order');
+            })
+            .finally(() => {
+              hideDiscardModal();
+            });
+  }
+
+  // Close modal when clicking outside
+  window.onclick = function(event) {
+    const modal = document.getElementById('discardModal');
+    if (event.target === modal) {
+      hideDiscardModal();
+    }
+  }
+</script>
+</body>
+</html>

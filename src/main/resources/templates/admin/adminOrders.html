@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Orders - AUCA E-Commerce</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {font-family: Arial, sans-serif; background:#f4f4f4; margin:0;}
+        header {background:#2c3e50; padding:1rem; color:white; display:flex; justify-content:space-between;}
+        table {width:100%; border-collapse:collapse; margin-top:20px;}
+        th, td {padding:10px; border:1px solid #ddd; text-align:left;}
+        th {background:#27ae60; color:white;}
+        tr:nth-child(even) {background:#f9f9f9;}
+        .btn {padding:5px 10px; border:none; border-radius:3px; cursor:pointer;}
+        .btn-view {background:#2980b9; color:white; text-decoration:none;}
+        .btn-delete {background:#e74c3c; color:white;}
+    </style>
+</head>
+<body>
+<header>
+    <h2>Admin Panel - Orders</h2>
+    <a th:href="@{/admin/dashboard}" style="color:white;">Dashboard</a>
+</header>
+
+<div style="padding:20px;">
+    <h3>All Orders</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Total Items</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}"></td>
+            <td th:text="${order.customer.email}"></td>
+            <td th:text="${order.status}"></td>
+            <td th:text="${#lists.size(order.items)}"></td>
+            <td>
+                <a th:href="@{/admin/orders/details(id=${order.id})}" class="btn btn-view">View</a>
+                <form th:action="@{/admin/orders/delete}" method="post" style="display:inline;">
+                    <input type="hidden" name="orderId" th:value="${order.id}">
+                    <button class="btn btn-delete" type="submit" onclick="return confirm('Delete this order?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

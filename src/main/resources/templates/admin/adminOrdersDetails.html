@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details</title>
+    <style>
+        body {font-family:Arial, sans-serif; background:#f4f4f4; margin:0;}
+        .container {max-width:900px; margin:20px auto; background:white; padding:20px; border-radius:5px;}
+        table {width:100%; border-collapse:collapse; margin-top:20px;}
+        th, td {padding:8px; border:1px solid #ddd; text-align:left;}
+        th {background:#27ae60; color:white;}
+        .btn {padding:6px 12px; border:none; border-radius:4px; margin-top:10px;}
+        .btn-update {background:#27ae60; color:white;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Order Details</h2>
+    <p><b>Order ID:</b> <span th:text="${order.id}"></span></p>
+    <p><b>Customer:</b> <span th:text="${order.customer.email}"></span></p>
+    <p><b>Status:</b> <span th:text="${order.status}"></span></p>
+
+    <h3>Items</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.items}">
+            <td th:text="${item.product.name}"></td>
+            <td th:text="${item.price}"></td>
+            <td th:text="${item.quantity}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form th:action="@{/admin/orders/update-status}" method="post">
+        <input type="hidden" name="orderId" th:value="${order.id}">
+        <label for="status">Update Status:</label>
+        <select name="status" id="status">
+            <option value="PENDING">Pending</option>
+            <option value="PROCESSING">Processing</option>
+            <option value="SHIPPED">Shipped</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="CANCELLED">Cancelled</option>
+        </select>
+        <button class="btn btn-update" type="submit">Update</button>
+    </form>
+</div>
+</body>
+</html>

@@ -3,6 +3,7 @@ package rw.ac.auca.ecommerce.core.product.service;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rw.ac.auca.ecommerce.core.product.model.Product;
 import rw.ac.auca.ecommerce.core.product.repository.IProductRepository;
 import rw.ac.auca.ecommerce.core.util.product.EStockState;
@@ -27,6 +28,14 @@ public class ProductServiceImpl implements IProductService {
         theProduct.setActive(true); // Important if you're filtering active products
         //productRepository.save(theProduct);
         return productRepository.save(theProduct);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Product findProductWithSeller(UUID productId) {
+        return productRepository.findProductWithSeller(productId)
+                .orElseThrow(() -> new ObjectNotFoundException(Product.class, "Product not found with ID: " + productId));
     }
 
     @Override

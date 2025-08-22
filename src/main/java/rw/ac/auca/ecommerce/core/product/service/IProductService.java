@@ -14,6 +14,7 @@ import java.util.UUID;
  */
 public interface IProductService {
     Product createProduct(Product theProduct);
+    Product findProductWithSeller(UUID productId);
     Product updateProduct(Product theProduct);
     Product deleteProduct(Product theProduct);
     Product findProductByIdAndState(UUID id , Boolean active);

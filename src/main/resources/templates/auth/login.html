@@ -174,36 +174,107 @@
         margin: 0 1rem;
       }
     }
+
+    .role-selector {
+      margin-bottom: 1.5rem;
+    }
+
+    .role-options {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .role-option {
+      flex: 1;
+      text-align: center;
+    }
+
+    .role-option input[type="radio"] {
+      display: none;
+    }
+
+    .role-option label {
+      display: block;
+      padding: 0.8rem;
+      border: 2px solid #dfe6e9;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: var(--light);
+    }
+
+    .role-option input[type="radio"]:checked + label {
+      border-color: var(--primary);
+      background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .role-option label:hover {
+      border-color: var(--primary-dark);
+    }
+
+    .role-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
   </style>
 </head>
 <body>
 <div class="login-container">
-  <h2>Login</h2>
+  <div class="login-card">
+    <h2>Login</h2>
 
-  <form th:action="@{/auth/login}" method="post">
-    <label for="role">Login as:</label>
-    <select id="role" name="role" required>
-      <option value="" disabled selected>Select role</option>
-      <option value="SELLER">Seller</option>
-      <option value="CUSTOMER">Customer</option>
-      <option value="ADMIN">Admin</option>
-    </select>
+    <!-- Success message after registration -->
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
-    <label for="email">Email:</label>
-    <input type="email" name="email" id="email" required autofocus>
+    <!-- Error message -->
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
 
-    <label for="password">Password:</label>
-    <input type="password" name="password" id="password" required>
+    <!-- Logout message -->
+    <div class="alert alert-info" th:if="${message}" th:text="${message}"></div>
 
-    <button type="submit">Login</button>
-  </form>
+    <form th:action="@{/auth/login}" method="post">
+      <div class="form-group">
+        <label for="username">Email:</label>
+        <input type="email" id="username" name="username" class="form-control" required autofocus>
+      </div>
 
-  <p class="error" th:if="${error}" th:text="${error}"></p>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" class="form-control" required>
+      </div>
 
-  <div class="register-link">
-    <span>Don't have an account? Register as </span>
-    <a th:href="@{/seller/register}">Seller</a> or
-    <a th:href="@{/customer/register}">Customer</a>
+      <div class="form-group role-selector">
+        <label>Login as:</label>
+        <div class="role-options">
+          <div class="role-option">
+            <input type="radio" id="role-customer" name="role" value="CUSTOMER" checked>
+            <label for="role-customer">
+              <div class="role-icon">👤</div>
+              <div>Customer</div>
+            </label>
+          </div>
+          <div class="role-option">
+            <input type="radio" id="role-seller" name="role" value="SELLER">
+            <label for="role-seller">
+              <div class="role-icon">🏪</div>
+              <div>Seller</div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+
+    <div class="register-links">
+      <p>Don't have an account? Register as:</p>
+      <a th:href="@{/seller/register}" class="btn btn-secondary">Seller</a>
+      <a th:href="@{/customer/register}" class="btn btn-secondary">Customer</a>
+    </div>
   </div>
 </div>
 </body>

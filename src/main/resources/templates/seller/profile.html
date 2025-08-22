@@ -1,10 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>My Profile</title>
+    <meta charset="UTF-8"/>
+    <title>My Profile — Seller</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; background:#f7f8fa; color:#222; }
+        .container { max-width:900px; margin:28px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+        h1 { margin:0 0 12px; font-size:22px; }
+        .top-actions { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:12px; }
+        .btn { display:inline-block; padding:8px 12px; border-radius:6px; text-decoration:none; border:1px solid #007bff; color:#007bff; background:transparent; }
+        .btn-primary { background:#007bff; color:#fff; border:none; }
+        .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+        label { display:block; font-size:0.9rem; margin-bottom:6px; color:#444; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="password"], textarea, select {
+            width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.95rem;
+            box-sizing:border-box;
+        }
+        textarea { min-height:90px; resize:vertical; }
+        .full { grid-column: 1/ -1; }
+        .messages { margin:8px 0; }
+        .success { background:#e6f4ea; color:#165a2a; padding:10px; border-radius:6px; }
+        .error { background:#fdecea; color:#7a1f1f; padding:10px; border-radius:6px; }
+        .small { font-size:0.85rem; color:#666; margin-top:6px; }
+    </style>
 </head>
 <body>
+<div class="container">
+    <div class="top-actions">
+        <h1>Seller Profile / Settings</h1>
+        <div>
+            <a th:href="@{/seller/dashboard}" class="btn">Dashboard</a>
+            <a th:href="@{/auth/login}" class="btn">Logout</a>
+        </div>
+    </div>
 
+    <div class="messages">
+        <div th:if="${message}" class="success" th:text="${message}">Profile updated.</div>
+        <div th:if="${error}" class="error" th:text="${error}">Something went wrong.</div>
+    </div>
+
+    <!-- Form bound to model attribute "seller" -->
+    <form th:action="@{/seller/profile/update}" th:object="${seller}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="grid">
+            <div>
+                <label for="firstName">First name</label>
+                <input id="firstName" type="text" th:field="*{firstName}" placeholder="First name" required />
+            </div>
+
+            <div>
+                <label for="lastName">Last name</label>
+                <input id="lastName" type="text" th:field="*{lastName}" placeholder="Last name" required />
+            </div>
+
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" th:field="*{email}" placeholder="you@example.com" required />
+            </div>
+
+            <div>
+                <label for="phoneNumber">Phone</label>
+                <input id="phoneNumber" type="tel" th:field="*{phoneNumber}" placeholder="+2507xxxxxxxx" />
+            </div>
+
+            <div class="full">
+                <label for="businessName">Business name</label>
+                <input id="businessName" type="text" th:field="*{businessName}" placeholder="Your business name" />
+            </div>
+
+            <div class="full">
+                <label for="businessAddress">Business address</label>
+                <input id="businessAddress" type="text" th:field="*{businessAddress}" placeholder="Business address" />
+            </div>
+
+            <div>
+                <label for="businessType">Business type</label>
+                <input id="businessType" type="text" th:field="*{businessType}" placeholder="e.g. Retail, Wholesale" />
+            </div>
+
+            <div>
+                <label for="registrationNumber">Registration number</label>
+                <input id="registrationNumber" type="text" th:field="*{registrationNumber}" placeholder="Registration number" />
+            </div>
+
+            <div class="full">
+                <label for="bio">About / Short bio</label>
+                <textarea id="bio" th:field="*{businessAddress}" placeholder="Optional short description"></textarea>
+            </div>
+
+            <div>
+                <label for="currentPassword">Current password (required to change password)</label>
+                <input id="currentPassword" type="password" name="currentPassword" placeholder="Current password" />
+            </div>
+
+            <div>
+                <label for="newPassword">New password</label>
+                <input id="newPassword" type="password" name="newPassword" placeholder="New password" />
+            </div>
+
+            <div>
+                <label for="confirmNewPassword">Confirm new password</label>
+                <input id="confirmNewPassword" type="password" name="confirmNewPassword" placeholder="Confirm new password" />
+            </div>
+        </div>
+
+        <div style="margin-top:14px;">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a th:href="@{/seller/dashboard}" class="btn">Cancel</a>
+        </div>
+
+        <p class="small">Note: Email is used as login. Leaving password fields empty will keep your current password unchanged.</p>
+    </form>
+</div>
 </body>
 </html>

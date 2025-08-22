@@ -336,50 +336,37 @@
                 <th>Product</th>
                 <th>Description</th>
                 <th>Price (Frw)</th>
-                <th>Stock</th>
+                <th>Quantity</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="product : ${cart}">
+            <tr th:each="item : ${cart}">
                 <td>
                     <div class="product-cell">
-                        <img th:if="${product.imagePath != null}"
-                             th:src="${product.imagePath}"
-                             class="product-image"
-                             alt="Product Image">
-                        <img th:unless="${product.imagePath != null}"
-                             th:src="@{/images/default.jpg}"
-                             class="product-image"
-                             alt="Default Product Image">
-                        <span th:text="${product.productName}">Product</span>
+                        <img th:if="${item.product.imagePath != null}" th:src="${item.product.imagePath}" class="product-image">
+                        <img th:unless="${item.product.imagePath != null}" th:src="@{/images/default.jpg}" class="product-image">
+                        <span th:text="${item.product.productName}">Product</span>
                     </div>
                 </td>
-                <td th:text="${product.description}">Description</td>
-                <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 2, 'NONE')}">0</td>
+                <td th:text="${item.product.description}">Description</td>
+                <td th:text="${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 2, 'NONE')}">0</td>
                 <td>
-                            <span th:switch="${product.stockState}">
-                                <span th:case="'IN_STOCK'" style="color: var(--accent);">
-                                    <i class="fas fa-check-circle"></i> In Stock
-                                </span>
-                                <span th:case="'LOW_STOCK'" style="color: #f39c12;">
-                                    <i class="fas fa-exclamation-circle"></i> Low Stock
-                                </span>
-                                <span th:case="'OUT_OF_STOCK'" style="color: var(--error);">
-                                    <i class="fas fa-times-circle"></i> Out of Stock
-                                </span>
-                            </span>
+                    <form th:action="@{/customer/cart/updateQuantity}" method="post">
+                        <input type="hidden" name="productId" th:value="${item.product.id}">
+                        <input type="number" name="quantity" th:value="${item.quantity}" min="1" max="100">
+                        <button type="submit">Update</button>
+                    </form>
                 </td>
                 <td>
-                    <form th:action="@{/cart/remove}" method="post" style="display:inline;">
-                        <input type="hidden" name="productId" th:value="${product.id}">
-                        <button type="submit" class="remove-btn" title="Remove item">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                    <form th:action="@{/customer/cart/remove}" method="post">
+                        <input type="hidden" name="productId" th:value="${item.product.id}">
+                        <button type="submit">Remove</button>
                     </form>
                 </td>
             </tr>
             </tbody>
+
             <tfoot>
             <tr class="total-row">
                 <td colspan="3">Total</td>
@@ -389,7 +376,7 @@
         </table>
     </div>
 
-    <!-- If empty -->
+    <!-- If cart is empty -->
     <div class="empty-cart" th:if="${cart == null or #lists.isEmpty(cart)}">
         <i class="fas fa-shopping-cart empty-cart-icon"></i>
         <p>Your cart is empty!</p>
@@ -397,9 +384,10 @@
     </div>
 
     <!-- Actions -->
-    <div class="actions" th:if="${cart != null and !#lists.isEmpty(cart)}">
-        <form th:action="@{/cart/placeOrder}" method="post" style="display:inline;" id="orderForm">
-            <button type="submit" class="btn btn-accent" id="placeOrderBtn">
+    <div class="actions" th:if="${cart != null and !cart.empty}">
+        <form th:action="@{/customer/cart/placeOrder}" method="post" id="orderForm">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-accent place-order-btn" id="placeOrderBtn">
                 <i class="fas fa-shopping-bag"></i> Place Order
             </button>
         </form>
@@ -408,7 +396,32 @@
         </a>
     </div>
 </div>
+</body>
 
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const orderForm = document.getElementById('orderForm');
+
+        if (orderForm) {
+            console.log('Order form found');
+
+            orderForm.addEventListener('submit', function(e) {
+                console.log('Form submission triggered');
+                // Optional: Add loading indicator
+                document.getElementById('placeOrderBtn').disabled = true;
+                document.getElementById('placeOrderBtn').innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            });
+
+            // Manually trigger click for testing
+            document.querySelector('.place-order-btn').addEventListener('click', function() {
+                console.log('Place Order button clicked');
+            });
+        } else {
+            console.error('Order form not found!');
+        }
+    });
+</script>
 <script>
     // Handle form submission
     document.getElementById('orderForm')?.addEventListener('submit', function(e) {

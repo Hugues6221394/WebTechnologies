@@ -50,6 +50,6 @@ public class Product extends AbstractBaseEntity {
     private EStockState stockState;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id")
+    @JoinColumn(name = "seller_id", nullable = false)
     private AppUser seller;
 }

@@ -39,6 +39,7 @@
     nav {
       display: flex;
       gap: 2rem;
+      align-items: center;
     }
 
     nav a {
@@ -54,6 +55,40 @@
       border-bottom: 2px solid var(--accent);
     }
 
+    /* Search Box Styles */
+    .search-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      outline: none;
+      transition: all 0.3s;
+      width: 200px;
+    }
+
+    .search-box:focus {
+      border-color: var(--accent);
+      width: 250px;
+      box-shadow: 0 0 5px rgba(39, 174, 96, 0.3);
+    }
+
+    .search-button {
+      background: none;
+      border: none;
+      margin-left: -35px;
+      cursor: pointer;
+      color: var(--primary);
+      transition: color 0.3s;
+    }
+
+    .search-button:hover {
+      color: var(--accent);
+    }
+
     .hero {
       text-align: center;
       padding: 3rem 2rem;
@@ -64,6 +99,7 @@
       transition: opacity 1s, transform 1s;
     }
 
+    /* Rest of your existing styles... */
     .hero.visible {
       opacity: 1;
       transform: translateY(0);
@@ -581,6 +617,26 @@
       .footer-content {
         grid-template-columns: 1fr 1fr;
       }
+
+      header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .search-box {
+        width: 180px;
+      }
+
+      .search-box:focus {
+        width: 200px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -590,6 +646,14 @@
 
       .footer-bottom {
         flex-direction: column-reverse;
+      }
+
+      .search-box {
+        width: 150px;
+      }
+
+      .search-box:focus {
+        width: 170px;
       }
     }
   </style>
@@ -628,8 +692,19 @@
   <div class="logo">AUCA E-Commerce</div>
   <nav>
     <a th:href="@{/customer/homepage}">Home</a>
-    <a th:href="@{/cart}">My Cart</a>
+    <a th:href="@{/customer/cart/view}">My Cart</a> <!-- Fixed path -->
     <a th:href="@{/customer/orders}">My Orders</a>
+
+    <!-- Search Box -->
+    <div class="search-container">
+      <form th:action="@{/search}" method="get">
+        <input type="text" class="search-box" name="query" placeholder="Search products..." aria-label="Search products">
+        <button type="submit" class="search-button">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+
     <a th:href="@{/auth/login}">Logout</a>
   </nav>
 </header>
@@ -639,7 +714,7 @@
   <p>Discover amazing products from our platform!</p>
 
   <div class="buttons">
-    <a th:href="@{/cart}" id="cartButton">View Cart</a>
+    <a th:href="@{/customer/cart/view}" id="cartButton">View Cart</a> <!-- Fixed path -->
     <a th:href="@{/customer/orders}" id="ordersButton">View My Orders</a>
   </div>
 </section>
@@ -690,7 +765,8 @@
       <p>Stock: <span th:text="${product.stockState}"></span></p>
     </div>
 
-    <form th:action="@{/cart/add}" method="post">
+    <form th:action="@{/customer/cart/add}" method="post"> <!-- Fixed path -->
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
       <input type="hidden" name="productId" th:value="${product.id}" />
       <button type="submit" class="add-to-cart">Add to Cart</button>
     </form>
@@ -704,7 +780,7 @@
       <h3>Quick Links</h3>
       <ul class="footer-links">
         <li><a th:href="@{/customer/homepage}">Home</a></li>
-        <li><a th:href="@{/cart}">My Cart</a></li>
+        <li><a th:href="@{/customer/cart/view}">My Cart</a></li> <!-- Fixed path -->
         <li><a th:href="@{/customer/orders}">My Orders</a></li>
         <li><a th:href="@{/auth/login}">Login/Register</a></li>
       </ul>
@@ -801,8 +877,55 @@
       initProductCards();
       initScrollAnimations();
       initDynamicBackground();
+      initSearchFunctionality();
     }, 1800);
   });
+
+  function initSearchFunctionality() {
+    const searchForm = document.querySelector('.search-container form');
+    const searchBox = document.querySelector('.search-box');
+
+    if (searchForm) {
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const query = searchBox.value.trim();
+
+        if (query) {
+          // Show loading state
+          const button = this.querySelector('.search-button');
+          button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+          // In a real application, this would submit the form to your backend
+          // For now, we'll simulate a search
+          setTimeout(() => {
+            button.innerHTML = '<i class="fas fa-search"></i>';
+
+            // Highlight matching products (simulated)
+            const productNames = document.querySelectorAll('.product-info h3');
+            productNames.forEach(name => {
+              const productCard = name.closest('.product-card');
+              if (name.textContent.toLowerCase().includes(query.toLowerCase())) {
+                productCard.style.boxShadow = '0 0 0 3px var(--accent)';
+                productCard.style.transition = 'box-shadow 0.3s';
+                setTimeout(() => {
+                  productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+              }
+            });
+          }, 800);
+        }
+      });
+
+      // Add search box animation
+      searchBox.addEventListener('focus', function() {
+        this.parentElement.style.transform = 'scale(1.05)';
+      });
+
+      searchBox.addEventListener('blur', function() {
+        this.parentElement.style.transform = 'scale(1)';
+      });
+    }
+  }
 
   function initAnimations() {
     // Hero section animation with parallax effect

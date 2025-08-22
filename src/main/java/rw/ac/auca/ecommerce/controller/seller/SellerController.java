@@ -2,15 +2,23 @@ package rw.ac.auca.ecommerce.controller.seller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import rw.ac.auca.ecommerce.core.customer.service.IAppUserService;
 import rw.ac.auca.ecommerce.core.order.service.IOrderService;
 import rw.ac.auca.ecommerce.core.product.service.IProductService;
 import rw.ac.auca.ecommerce.entity.AppUser;
 import rw.ac.auca.ecommerce.core.util.product.UserRole;
+import rw.ac.auca.ecommerce.entity.order.Order;
+import rw.ac.auca.ecommerce.entity.order.OrderStatus;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -44,7 +52,7 @@ public class SellerController {
         }
 
         try {
-            user.setRole(UserRole.SELLER);
+            user.setRole(UserRole.ROLE_SELLER);
             user.setActive(true); // assuming you have this field to enable user
             appUserService.register(user);
             model.addAttribute("message", "Seller registered successfully!");
@@ -60,53 +68,212 @@ public class SellerController {
     public String getSellerLoginPage() {
         return "auth/login";  // login page for sellers (reuse or separate as you like)
     }
-
-    // POST login form
-    @PostMapping("/login")
-    public String loginSeller(@RequestParam String email,
-                              @RequestParam String password,
-                              HttpSession session,
-                              Model model) {
-
-        AppUser user = appUserService.authenticate(email, password);
-
-        if (user == null || user.getRole() != UserRole.SELLER) {
-            model.addAttribute("error", "Invalid seller credentials.");
-            return "auth/login";
-        }
-
-        // Set session attribute for logged-in seller
-        session.setAttribute("loggedInUser", user);
-        return "redirect:/seller/dashboard";
-    }
+//    @PostMapping("/login")
+//    public String loginSeller(@RequestParam String email,
+//                              @RequestParam String password,
+//                              HttpSession session,
+//                              Model model,
+//                              RedirectAttributes redirectAttributes) {
+//
+//        try {
+//            // 1. Authenticate credentials
+//            boolean authenticated = appUserService.authenticate(email, password);
+//            if (!authenticated) {
+//                redirectAttributes.addFlashAttribute("error", "Invalid email or password");
+//                return "redirect:/seller/login";
+//            }
+//
+//            // 2. Get user details
+//            AppUser user = appUserService.findByEmail(email)
+//                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//
+//            // 3. Verify seller role
+//            if (user.getRole() != UserRole.SELLER) {
+//                redirectAttributes.addFlashAttribute("error", "This account is not authorized as a seller");
+//                return "redirect:/seller/login";
+//            }
+//
+//            // 4. Check account status
+//            if (!user.isActive()) {
+//                redirectAttributes.addFlashAttribute("error", "Seller account is inactive. Please contact support.");
+//                return "redirect:/seller/login";
+//            }
+//
+//            if (!user.isAccountNonLocked()) {
+//                redirectAttributes.addFlashAttribute("error",
+//                        "Account locked due to multiple failed attempts. " +
+//                                "Try again later or reset your password.");
+//                return "redirect:/seller/login";
+//            }
+//
+//            // 5. Set up session
+//            session.setAttribute("loggedInUser", user);
+//            session.setAttribute("userRole", user.getRole().name());
+//            session.setMaxInactiveInterval(1800); // 30-minute session timeout
+//
+//            // 6. Reset failed attempts on successful login
+//            appUserService.resetFailedLoginAttempts(email);
+//
+//            return "redirect:/seller/dashboard";
+//
+//        } catch (BadCredentialsException e) {
+//            redirectAttributes.addFlashAttribute("error", "Invalid credentials");
+//            return "redirect:/seller/login";
+//        } catch (UsernameNotFoundException e) {
+//            redirectAttributes.addFlashAttribute("error", "Seller account not found");
+//            return "redirect:/seller/login";
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("error",
+//                    "Login error: " + e.getMessage());
+//            return "redirect:/seller/login";
+//        }
+//    }
 
     @GetMapping("/dashboard")
-    public String sellerDashboard(HttpSession session, Model model) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
+    public String sellerDashboard(Authentication authentication, Model model) {
+        // Get the authenticated user's email
+        String email = authentication.getName();
 
-        if (user == null || user.getRole() != UserRole.SELLER) {
-            return "redirect:/seller/login";
-        }
-
-        UUID sellerId = user.getId();
+        // Fetch seller details from service
+        AppUser seller = appUserService.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Seller not found"));
 
         // Dashboard summary
-        int totalProducts = productService.countProductsBySellerId(sellerId);
-        int orderCount = orderService.getOrdersByCustomer(sellerId).size();  // <-- fixed: getOrdersBySellerId
-        double totalRevenue = orderService.getTotalRevenueBySellerId(sellerId);
+        int totalProducts = productService.countProductsBySellerId(seller.getId());
+        int orderCount = orderService.getOrdersBySellerId(seller.getId()).size();
+        double totalRevenue = orderService.getTotalRevenueBySellerId(seller.getId());
 
-        // Fetch all orders on seller's products
-        model.addAttribute("sellerOrders", orderService.getOrdersByCustomer(sellerId));
-
-        // Add attributes
-        model.addAttribute("seller", user);
+        // Add attributes to model
+        model.addAttribute("seller", seller);
+        model.addAttribute("sellerName", seller.getFirstName() + " " + seller.getLastName());
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("orderCount", orderCount);
         model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("sellerOrders", orderService.getOrdersBySellerId(seller.getId()));
+
+        System.out.println("Authenticated user: " + authentication.getName());
+        System.out.println("Authorities: " + authentication.getAuthorities());
+        System.out.println("Found seller: " + seller);
 
         return "seller/sellerDashboard";
     }
+//    @GetMapping("/orders")
+//    public String viewSellerOrders(HttpSession session, Model model) {
+//        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
+//
+//        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
+//            return "redirect:/auth/login";
+//        }
+//
+//        // Fetch orders associated with seller's products
+//        List<Order> orders = orderService.getOrdersBySellerId(seller.getId());
+//        model.addAttribute("orders", orders);
+//
+//        return "seller/sellerOrdersPage";
+//    }
 
+    @GetMapping("/orders/details")
+    public String viewOrderDetails(@RequestParam("id") UUID orderId,
+                                   HttpSession session,
+                                   Model model) {
+        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
 
+        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
+            return "redirect:/auth/login";
+        }
+
+        Order order = orderService.findById(orderId);
+        if (order == null) {
+            model.addAttribute("error", "Order not found");
+            return "redirect:/seller/orders";
+        }
+
+        // Attach order + items
+        model.addAttribute("order", order);
+        model.addAttribute("items", order.getItems());
+
+        return "seller/sellerOrderDetailsPage";
+    }
+
+    @PostMapping("/orders/update-status")
+    public String updateOrderStatus(@RequestParam("id") UUID orderId,
+                                    @RequestParam("status") String status,
+                                    RedirectAttributes redirectAttributes,
+                                    HttpSession session) {
+
+        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
+        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
+            return "redirect:/auth/login";
+        }
+
+        try {
+            orderService.updateOrderStatus(orderId, status);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Order status updated to " + status + " successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Failed to update order status: " + e.getMessage());
+        }
+
+        return "redirect:/seller/orders/details?id=" + orderId;
+    }
+
+    // Show seller profile page
+    @GetMapping("/profile")
+    public String sellerProfile(HttpSession session, Model model) {
+        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
+        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
+            return "redirect:/seller/login";
+        }
+        // send the current seller to the view
+        model.addAttribute("seller", seller);
+        return "seller/profile"; // templates/seller/profile.html
+    }
+
+    // Handle profile update (basic fields)
+    @PostMapping("/profile/update")
+    public String updateSellerProfile(@ModelAttribute("seller") AppUser updated,
+                                      HttpSession session,
+                                      Model model) {
+        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
+        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
+            return "redirect:/seller/login";
+        }
+
+        // ensure user cannot change another user's id/role via the form
+        updated.setId(seller.getId());
+        updated.setRole(UserRole.ROLE_SELLER);
+        // preserve fields you don't want overwritten (e.g., password) if empty
+        if (updated.getPassword() == null || updated.getPassword().isBlank()) {
+            updated.setPassword(seller.getPassword()); // keep existing hashed password
+        }
+
+        try {
+            appUserService.update(updated);    // assumes service updates correctly
+            // refresh session user
+            session.setAttribute("loggedInUser", updated);
+            model.addAttribute("message", "Profile updated successfully.");
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to update profile: " + e.getMessage());
+        }
+
+        model.addAttribute("seller", updated);
+        return "seller/profile";
+    }
+
+    @GetMapping("/debug")
+    public String debug(Authentication authentication, HttpSession session) {
+        System.out.println("=== DEBUG START ===");
+        System.out.println("Authentication: " + authentication);
+        if (authentication != null) {
+            System.out.println("Name: " + authentication.getName());
+            System.out.println("Authorities: " + authentication.getAuthorities());
+            System.out.println("Details: " + authentication.getDetails());
+        }
+        System.out.println("Session ID: " + session.getId());
+        System.out.println("Session attributes: " + Collections.list(session.getAttributeNames()));
+        System.out.println("=== DEBUG END ===");
+        return "redirect:/seller/dashboard";
+    }
 
 }

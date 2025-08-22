@@ -311,6 +311,7 @@
         </a>
     </div>
 
+    <!-- No orders -->
     <div th:if="${#lists.isEmpty(orders)}" class="no-orders">
         <i class="fas fa-box-open"></i>
         <h3>No Orders Yet</h3>
@@ -320,14 +321,19 @@
         </a>
     </div>
 
+    <!-- Orders List -->
     <div th:unless="${#lists.isEmpty(orders)}">
         <div class="order-card" th:each="order : ${orders}" th:attr="data-status=${order.status}">
             <div class="order-header">
                 <div>
                     <div class="order-id">Order #<span th:text="${order.id}">12345</span></div>
-                    <div class="order-date" th:text="${#temporals.format(order.orderDate, 'MMMM dd, yyyy HH:mm')}">July 19, 2023 14:30</div>
+                    <div class="order-date" th:text="${#temporals.format(order.orderDate, 'MMMM dd, yyyy HH:mm')}">
+                        July 19, 2023 14:30
+                    </div>
                 </div>
-                <div th:classappend="'status-' + ${order.status.toLowerCase()}" class="order-status" th:text="${order.status}">PENDING</div>
+                <div th:classappend="'status-' + ${order.status.toLowerCase()}" class="order-status"
+                     th:text="${order.status}">PENDING
+                </div>
             </div>
 
             <div class="order-details">
@@ -341,7 +347,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="item : ${order.orderItems}">
+                    <!-- FIXED: Use order.items instead of order.orderItems -->
+                    <tr th:each="item : ${order.items}">
                         <td>
                             <div class="product-info">
                                 <img th:if="${item.product.imagePath != null}"
@@ -352,12 +359,16 @@
                                      th:src="@{/images/default.jpg}"
                                      class="product-image"
                                      alt="Default Product Image">
-                                <div class="product-name" th:text="${item.product.name}">Product Name</div>
+                                <div class="product-name" th:text="${item.product.productName}">Product Name</div>
                             </div>
                         </td>
-                        <td th:text="${'RWF ' + #numbers.formatDecimal(item.price, 1, 'COMMA', 2, 'POINT')}">RWF 5,000</td>
+                        <td th:text="${'RWF ' + #numbers.formatDecimal(item.price, 1, 'COMMA', 2, 'POINT')}">
+                            RWF 5,000
+                        </td>
                         <td th:text="${item.quantity}">1</td>
-                        <td th:text="${'RWF ' + #numbers.formatDecimal(item.price * item.quantity, 1, 'COMMA', 2, 'POINT')}">RWF 5,000</td>
+                        <td th:text="${'RWF ' + #numbers.formatDecimal(item.price * item.quantity, 1, 'COMMA', 2, 'POINT')}">
+                            RWF 5,000
+                        </td>
                     </tr>
                     </tbody>
                 </table>
@@ -365,12 +376,13 @@
 
             <div class="order-total">
                 <span>Order Total: </span>
-                <span th:text="${'RWF ' + #numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}">RWF 5,000</span>
+                <span th:text="${'RWF ' + #numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}">
+                    RWF 5,000
+                </span>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Show loading overlay

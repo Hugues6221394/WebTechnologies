@@ -18,11 +18,14 @@
 <div class="login-box">
     <h2>Admin Login</h2>
     <div th:if="${error}" class="error" th:text="${error}">Invalid credentials</div>
-    <form th:action="@{/admin/login}" method="post">
-        <input type="email" name="email" placeholder="Email" required/>
-        <input type="password" name="password" placeholder="Password" required/>
+    <form action="/admin/login" method="post">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
         <button type="submit">Login</button>
+
+        <p th:if="${error}" th:text="${error}" style="color:red;"></p>
     </form>
+
 </div>
 
 </body>

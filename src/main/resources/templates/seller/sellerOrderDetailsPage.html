@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
+        header { background: #34495e; color: #fff; padding: 1rem; text-align: center; }
+        nav { background: #2c3e50; padding: 1rem; display: flex; gap: 1.5rem; justify-content: center; }
+        nav a { color: white; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        nav a:hover { color: #27ae60; }
+        .container { padding: 2rem; max-width: 1100px; margin: auto; background: #fff; border-radius: 6px; }
+        h2 { margin-bottom: 1rem; }
+        .order-summary { margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.8rem; border-bottom: 1px solid #ddd; }
+        th { background: #2c3e50; color: #fff; }
+        tr:hover { background: #f9f9f9; }
+        .btn-back { background: #27ae60; color: #fff; padding: 8px 12px; border-radius: 4px; text-decoration: none; margin-top: 1rem; display: inline-block; }
+        .btn-back:hover { background: #219150; }
+
+        /* Approve/Reject buttons */
+        .btn-approve {
+            background: #27ae60;
+            color: #fff;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-approve:hover {
+            background: #219150;
+        }
+        .btn-reject {
+            background: #e74c3c;
+            color: #fff;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-reject:hover {
+            background: #c0392b;
+        }
+
+        .status-update-form {
+            margin-top: 1.5rem;
+        }
+
+        /* Alert messages */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+        .alert-success {
+            background-color: #eafaf1;
+            color: #2e7d32;
+            border: 1px solid #27ae60;
+        }
+        .alert-error {
+            background-color: #fdecea;
+            color: #c0392b;
+            border: 1px solid #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Order Details</h1>
+</header>
+
+<nav>
+    <a th:href="@{/seller/dashboard}"><i class="fas fa-home"></i> Home</a>
+    <a th:href="@{/product/register}"><i class="fas fa-plus-circle"></i> Add Product</a>
+    <a th:href="@{/product/search/all}"><i class="fas fa-box-open"></i> View My Products</a>
+    <a th:href="@{/seller/orders}"><i class="fas fa-clipboard-list"></i> Orders</a>
+    <a th:href="@{/auth/logout}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</nav>
+
+<div class="container">
+
+    <!-- Success or Error Messages -->
+    <div th:if="${successMessage}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="order-summary">
+        <p><strong>Order ID:</strong> <span th:text="${order.id}">12345</span></p>
+        <p><strong>Customer:</strong> <span th:text="${order.customer.fullName}">John Doe</span></p>
+        <p><strong>Total Amount:</strong> $<span th:text="${order.totalAmount}">0.00</span></p>
+        <p><strong>Status:</strong> <span th:text="${order.status}">PENDING</span></p>
+        <p><strong>Order Date:</strong> <span th:text="${#dates.format(order.orderDate,'dd MMM yyyy')}">01 Aug 2025</span></p>
+    </div>
+
+    <h2>Ordered Items</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.product.productName}">Sample Product</td>
+            <td th:text="'$' + ${item.price}">$0</td>
+            <td th:text="${item.quantity}">1</td>
+            <td th:text="'$' + ${item.price * item.quantity}">$0</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Approve / Reject Buttons -->
+    <form th:action="@{/seller/orders/update-status}" method="post" class="status-update-form">
+        <input type="hidden" name="id" th:value="${order.id}" />
+        <button type="submit" name="status" value="APPROVED" class="btn-approve">
+            <i class="fas fa-check"></i> Approve
+        </button>
+        <button type="submit" name="status" value="REJECTED" class="btn-reject">
+            <i class="fas fa-times"></i> Reject
+        </button>
+    </form>
+
+    <a th:href="@{/seller/orders}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Orders</a>
+</div>
+
+</body>
+</html>

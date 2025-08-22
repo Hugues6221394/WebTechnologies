@@ -40,7 +40,7 @@ public class ProductController {
     @GetMapping("/register")
     public String showProductForm(HttpSession session, Model model) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.SELLER) {
+        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
             return "redirect:/auth/login";
         }
 
@@ -59,7 +59,7 @@ public class ProductController {
                                   HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
 
-        if (user == null || user.getRole() != UserRole.SELLER) {
+        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
             return "redirect:/auth/login";
         }
 
@@ -90,7 +90,7 @@ public class ProductController {
     @PostMapping("/delete")
     public String deleteProduct(@RequestParam("id") String id, HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.SELLER) {
+        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
             return "redirect:/auth/login";
         }
         if (Objects.nonNull(id)) {
@@ -107,7 +107,7 @@ public class ProductController {
                                        Model model,
                                        HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.SELLER) {
+        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
             return "redirect:/auth/login";
         }
         if (Objects.nonNull(id)) {
@@ -126,7 +126,7 @@ public class ProductController {
     public String updateProduct(@ModelAttribute("product") Product theProduct,
                                 HttpSession session) {
         AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.SELLER) {
+        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
             return "redirect:/auth/login";
         }
         if (Objects.nonNull(theProduct)) {
@@ -134,4 +134,5 @@ public class ProductController {
         }
         return "redirect:/product";
     }
+
 }

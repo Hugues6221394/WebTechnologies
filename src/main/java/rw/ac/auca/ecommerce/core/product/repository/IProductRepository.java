@@ -22,6 +22,9 @@ public interface IProductRepository extends JpaRepository<Product, UUID> {
 
     Optional<Product> findByIdAndActive(UUID uuid, Boolean active);
 
+    @Query("SELECT p FROM Product p JOIN FETCH p.seller WHERE p.id = :productId")
+    Optional<Product> findProductWithSeller(@Param("productId") UUID productId);
+
     List<Product> findAllByActive(Boolean active);
 
     List<Product> findAllByStockStateAndActive(EStockState state, Boolean active);
