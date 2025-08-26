@@ -13,6 +13,7 @@
       --error: #e74c3c;
       --success: #2ecc71;
       --warning: #f39c12;
+      --info: #3498db;
     }
 
     body {
@@ -126,6 +127,16 @@
       color: #721c24;
     }
 
+    .status-approved {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-rejected {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
     .order-details {
       padding: 1.5rem;
     }
@@ -218,6 +229,75 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
+    /* Status Timeline */
+    .status-timeline {
+      padding: 1rem 1.5rem;
+      background-color: #f8f9fa;
+      border-top: 1px solid #eee;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .timeline-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .timeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .step-label {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #666;
+    }
+
+    .step-active .step-icon {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    .step-completed .step-icon {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .step-pending .step-icon {
+      background-color: #bdc3c7;
+      color: #7f8c8d;
+    }
+
+    .timeline-connector {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: #bdc3c7;
+      z-index: 1;
+    }
+
     @media (max-width: 768px) {
       .container {
         padding: 1rem;
@@ -239,9 +319,18 @@
         width: 40px;
         height: 40px;
       }
+
+      .timeline-steps {
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .timeline-connector {
+        display: none;
+      }
     }
 
-    /* Add these new styles for the discard button */
+    /* Order Actions */
     .order-actions {
       display: flex;
       justify-content: flex-end;
@@ -273,7 +362,7 @@
       background-color: #95a5a6;
       cursor: not-allowed;
       transform: none;
-      opacity: 0.7; /* Make it visually apparent it's disabled */
+      opacity: 0.7;
     }
 
     /* Modal styles */
@@ -348,7 +437,7 @@
 
   <!-- Orders List -->
   <div th:unless="${#lists.isEmpty(orders)}">
-    <div class="order-card" th:each="order : ${orders}" th:attr="data-status=${order.status.name().toLowerCase()}">
+    <div class="order-card" th:each="order : ${orders}">
 
       <!-- Order Header -->
       <div class="order-header">
@@ -404,14 +493,62 @@
         <span th:text="${'RWF ' + #numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}">RWF 5,000</span>
       </div>
 
+      <!-- Status Timeline -->
+      <div class="status-timeline">
+        <div class="timeline-title">Order Status Timeline</div>
+        <div class="timeline-steps">
+          <div class="timeline-connector"></div>
+          <div th:classappend="${order.status.ordinal() >= T(rw.ac.auca.ecommerce.entity.order.OrderStatus).PENDING.ordinal()} ? 'step-completed' : 'step-pending'"
+               class="timeline-step">
+            <div class="step-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="step-label">Pending</div>
+          </div>
+          <div th:classappend="${order.status.ordinal() >= T(rw.ac.auca.ecommerce.entity.order.OrderStatus).APPROVED.ordinal()} ? 'step-completed' : 'step-pending'"
+               class="timeline-step">
+            <div class="step-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="step-label">Approved</div>
+          </div>
+          <div th:classappend="${order.status.ordinal() >= T(rw.ac.auca.ecommerce.entity.order.OrderStatus).PROCESSING.ordinal()} ? 'step-completed' : 'step-pending'"
+               class="timeline-step">
+            <div class="step-icon">
+              <i class="fas fa-cog"></i>
+            </div>
+            <div class="step-label">Processing</div>
+          </div>
+          <div th:classappend="${order.status.ordinal() >= T(rw.ac.auca.ecommerce.entity.order.OrderStatus).SHIPPED.ordinal()} ? 'step-completed' : 'step-pending'"
+               class="timeline-step">
+            <div class="step-icon">
+              <i class="fas fa-shipping-fast"></i>
+            </div>
+            <div class="step-label">Shipped</div>
+          </div>
+          <div th:classappend="${order.status.ordinal() >= T(rw.ac.auca.ecommerce.entity.order.OrderStatus).COMPLETED.ordinal()} ? 'step-completed' : 'step-pending'"
+               class="timeline-step">
+            <div class="step-icon">
+              <i class="fas fa-check-double"></i>
+            </div>
+            <div class="step-label">Completed</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Order Actions -->
       <div class="order-actions">
-        <button class="discard-btn"
-                th:disabled="${order.status != T(rw.ac.auca.ecommerce.entity.order.OrderStatus).PENDING}"
-                th:attr="data-order-id=${order.id}"
-                onclick="showDiscardModal(this)">
-          <i class="fas fa-trash-alt"></i> Discard Order
-        </button>
+        <form th:action="@{/customer/orders/{orderId}/discard(orderId=${order.id})}"
+              method="post"
+              style="display: inline;">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button type="submit"
+                  class="discard-btn"
+                  th:disabled="${order.status != T(rw.ac.auca.ecommerce.entity.order.OrderStatus).PENDING}"
+                  onclick="return confirm('Are you sure you want to discard this order?');">
+            <i class="fas fa-trash-alt"></i> Discard Order
+          </button>
+        </form>
       </div>
     </div>
   </div>

@@ -68,66 +68,6 @@ public class SellerController {
     public String getSellerLoginPage() {
         return "auth/login";  // login page for sellers (reuse or separate as you like)
     }
-//    @PostMapping("/login")
-//    public String loginSeller(@RequestParam String email,
-//                              @RequestParam String password,
-//                              HttpSession session,
-//                              Model model,
-//                              RedirectAttributes redirectAttributes) {
-//
-//        try {
-//            // 1. Authenticate credentials
-//            boolean authenticated = appUserService.authenticate(email, password);
-//            if (!authenticated) {
-//                redirectAttributes.addFlashAttribute("error", "Invalid email or password");
-//                return "redirect:/seller/login";
-//            }
-//
-//            // 2. Get user details
-//            AppUser user = appUserService.findByEmail(email)
-//                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//            // 3. Verify seller role
-//            if (user.getRole() != UserRole.SELLER) {
-//                redirectAttributes.addFlashAttribute("error", "This account is not authorized as a seller");
-//                return "redirect:/seller/login";
-//            }
-//
-//            // 4. Check account status
-//            if (!user.isActive()) {
-//                redirectAttributes.addFlashAttribute("error", "Seller account is inactive. Please contact support.");
-//                return "redirect:/seller/login";
-//            }
-//
-//            if (!user.isAccountNonLocked()) {
-//                redirectAttributes.addFlashAttribute("error",
-//                        "Account locked due to multiple failed attempts. " +
-//                                "Try again later or reset your password.");
-//                return "redirect:/seller/login";
-//            }
-//
-//            // 5. Set up session
-//            session.setAttribute("loggedInUser", user);
-//            session.setAttribute("userRole", user.getRole().name());
-//            session.setMaxInactiveInterval(1800); // 30-minute session timeout
-//
-//            // 6. Reset failed attempts on successful login
-//            appUserService.resetFailedLoginAttempts(email);
-//
-//            return "redirect:/seller/dashboard";
-//
-//        } catch (BadCredentialsException e) {
-//            redirectAttributes.addFlashAttribute("error", "Invalid credentials");
-//            return "redirect:/seller/login";
-//        } catch (UsernameNotFoundException e) {
-//            redirectAttributes.addFlashAttribute("error", "Seller account not found");
-//            return "redirect:/seller/login";
-//        } catch (Exception e) {
-//            redirectAttributes.addFlashAttribute("error",
-//                    "Login error: " + e.getMessage());
-//            return "redirect:/seller/login";
-//        }
-//    }
 
     @GetMapping("/dashboard")
     public String sellerDashboard(Authentication authentication, Model model) {
@@ -157,87 +97,71 @@ public class SellerController {
 
         return "seller/sellerDashboard";
     }
-//    @GetMapping("/orders")
-//    public String viewSellerOrders(HttpSession session, Model model) {
+
+//    @GetMapping("/orders/details")
+//    public String viewOrderDetails(@RequestParam("id") UUID orderId,
+//                                   HttpSession session,
+//                                   Model model) {
 //        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
 //
 //        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
 //            return "redirect:/auth/login";
 //        }
 //
-//        // Fetch orders associated with seller's products
-//        List<Order> orders = orderService.getOrdersBySellerId(seller.getId());
-//        model.addAttribute("orders", orders);
+//        Order order = orderService.findById(orderId);
+//        if (order == null) {
+//            model.addAttribute("error", "Order not found");
+//            return "redirect:/seller/orders";
+//        }
 //
-//        return "seller/sellerOrdersPage";
+//        // Attach order + items
+//        model.addAttribute("order", order);
+//        model.addAttribute("items", order.getItems());
+//
+//        return "seller/sellerOrderDetailsPage";
 //    }
-
-    @GetMapping("/orders/details")
-    public String viewOrderDetails(@RequestParam("id") UUID orderId,
-                                   HttpSession session,
-                                   Model model) {
-        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
-
-        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
-            return "redirect:/auth/login";
-        }
-
-        Order order = orderService.findById(orderId);
-        if (order == null) {
-            model.addAttribute("error", "Order not found");
-            return "redirect:/seller/orders";
-        }
-
-        // Attach order + items
-        model.addAttribute("order", order);
-        model.addAttribute("items", order.getItems());
-
-        return "seller/sellerOrderDetailsPage";
-    }
-
-    @PostMapping("/orders/update-status")
-    public String updateOrderStatus(@RequestParam("id") UUID orderId,
-                                    @RequestParam("status") String status,
-                                    RedirectAttributes redirectAttributes,
-                                    HttpSession session) {
-
-        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
-        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
-            return "redirect:/auth/login";
-        }
-
-        try {
-            orderService.updateOrderStatus(orderId, status);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Order status updated to " + status + " successfully!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Failed to update order status: " + e.getMessage());
-        }
-
-        return "redirect:/seller/orders/details?id=" + orderId;
-    }
+//
+//    @PostMapping("/orders/update-status")
+//    public String updateOrderStatus(@RequestParam("id") UUID orderId,
+//                                    @RequestParam("status") String status,
+//                                    RedirectAttributes redirectAttributes,
+//                                    HttpSession session) {
+//
+//        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
+//        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
+//            return "redirect:/auth/login";
+//        }
+//
+//        try {
+//            orderService.updateOrderStatus(orderId, status);
+//            redirectAttributes.addFlashAttribute("successMessage",
+//                    "Order status updated to " + status + " successfully!");
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("errorMessage",
+//                    "Failed to update order status: " + e.getMessage());
+//        }
+//
+//        return "redirect:/seller/orders/details?id=" + orderId;
+//    }
 
     // Show seller profile page
     @GetMapping("/profile")
     public String sellerProfile(HttpSession session, Model model) {
         AppUser seller = (AppUser) session.getAttribute("loggedInUser");
         if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
-            return "redirect:/seller/login";
+            return "redirect:/auth/login"; // Changed from /seller/login to /auth/login
         }
-        // send the current seller to the view
         model.addAttribute("seller", seller);
-        return "seller/profile"; // templates/seller/profile.html
+        return "seller/profile";
     }
 
-    // Handle profile update (basic fields)
     @PostMapping("/profile/update")
     public String updateSellerProfile(@ModelAttribute("seller") AppUser updated,
                                       HttpSession session,
                                       Model model) {
         AppUser seller = (AppUser) session.getAttribute("loggedInUser");
         if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
-            return "redirect:/seller/login";
+            return "redirect:/auth/login"; // Changed from /seller/login to /auth/login
         }
 
         // ensure user cannot change another user's id/role via the form

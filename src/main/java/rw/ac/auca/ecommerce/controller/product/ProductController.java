@@ -3,20 +3,24 @@ package rw.ac.auca.ecommerce.controller.product;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import rw.ac.auca.ecommerce.core.customer.service.IAppUserService;
 import rw.ac.auca.ecommerce.core.product.model.Product;
 import rw.ac.auca.ecommerce.core.product.service.FileStorageService;
 import rw.ac.auca.ecommerce.core.product.service.IProductService;
 import rw.ac.auca.ecommerce.core.util.product.UserRole;
 import rw.ac.auca.ecommerce.entity.AppUser;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -25,11 +29,12 @@ import java.util.UUID;
 public class ProductController {
 
     private final IProductService productService;
+    private final IAppUserService appUserService;
 
     @Autowired
     private FileStorageService fileStorageService;
 
-    // View all products - accessible to everyone (customers see only active)
+    // View all products - accessible to everyone
     @GetMapping({"", "/", "/search/all"})
     public String getAllProducts(Model model) {
         List<Product> products = productService.findProductsByState(Boolean.TRUE);
@@ -38,35 +43,40 @@ public class ProductController {
     }
 
     @GetMapping("/register")
-    public String showProductForm(HttpSession session, Model model) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
+    @PreAuthorize("hasAnyAuthority('ROLE_SELLER', 'ROLE_ADMIN')")
+    public String showProductForm(Authentication authentication, Model model) {
+        // Get user from Spring Security
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Optional<AppUser> userOptional = appUserService.findByEmail(userDetails.getUsername());
+
+        if (userOptional.isEmpty()) {
             return "redirect:/auth/login";
         }
 
-        model.addAttribute("product", new Product()); // This is required for the form binding
+        model.addAttribute("product", new Product());
         return "product/productRegistrationPage";
     }
 
-
-
-
-
     @PostMapping("/register")
+    @PreAuthorize("hasAnyAuthority('ROLE_SELLER', 'ROLE_ADMIN')")
     public String registerProduct(@ModelAttribute("product") Product product,
                                   @RequestParam("imageFile") MultipartFile imageFile,
                                   Model model,
-                                  HttpSession session) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
+                                  Authentication authentication) {
 
-        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
+        // Get user from Spring Security
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Optional<AppUser> userOptional = appUserService.findByEmail(userDetails.getUsername());
+
+        if (userOptional.isEmpty()) {
             return "redirect:/auth/login";
         }
+
+        AppUser user = userOptional.get();
 
         if (product != null) {
             product.setSeller(user);
 
-            // ✅ Use file upload service
             try {
                 String imagePath = fileStorageService.saveImage(imageFile);
                 product.setImagePath(imagePath);
@@ -85,14 +95,18 @@ public class ProductController {
         return "product/productRegistrationPage";
     }
 
-
     // Delete product (SELLER only)
     @PostMapping("/delete")
-    public String deleteProduct(@RequestParam("id") String id, HttpSession session) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
+    @PreAuthorize("hasAnyAuthority('ROLE_SELLER', 'ROLE_ADMIN')")
+    public String deleteProduct(@RequestParam("id") String id, Authentication authentication) {
+        // Get user from Spring Security
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Optional<AppUser> userOptional = appUserService.findByEmail(userDetails.getUsername());
+
+        if (userOptional.isEmpty()) {
             return "redirect:/auth/login";
         }
+
         if (Objects.nonNull(id)) {
             Product theProduct = new Product();
             theProduct.setId(UUID.fromString(id));
@@ -103,13 +117,18 @@ public class ProductController {
 
     // Show update product page (SELLER only)
     @PostMapping("/update")
+    @PreAuthorize("hasAnyAuthority('ROLE_SELLER', 'ROLE_ADMIN')")
     public String getUpdateProductPage(@RequestParam("id") String id,
                                        Model model,
-                                       HttpSession session) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
+                                       Authentication authentication) {
+        // Get user from Spring Security
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Optional<AppUser> userOptional = appUserService.findByEmail(userDetails.getUsername());
+
+        if (userOptional.isEmpty()) {
             return "redirect:/auth/login";
         }
+
         if (Objects.nonNull(id)) {
             Product theProduct = productService.findProductByIdAndState(UUID.fromString(id), Boolean.TRUE);
             if (Objects.nonNull(theProduct)) {
@@ -123,16 +142,20 @@ public class ProductController {
 
     // Handle product update (SELLER only)
     @PostMapping("/updateProduct")
+    @PreAuthorize("hasAnyAuthority('ROLE_SELLER', 'ROLE_ADMIN')")
     public String updateProduct(@ModelAttribute("product") Product theProduct,
-                                HttpSession session) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
+                                Authentication authentication) {
+        // Get user from Spring Security
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Optional<AppUser> userOptional = appUserService.findByEmail(userDetails.getUsername());
+
+        if (userOptional.isEmpty()) {
             return "redirect:/auth/login";
         }
+
         if (Objects.nonNull(theProduct)) {
             productService.updateProduct(theProduct);
         }
         return "redirect:/product";
     }
-
 }

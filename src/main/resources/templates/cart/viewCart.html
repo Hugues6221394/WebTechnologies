@@ -407,64 +407,47 @@
 
             orderForm.addEventListener('submit', function(e) {
                 console.log('Form submission triggered');
-                // Optional: Add loading indicator
-                document.getElementById('placeOrderBtn').disabled = true;
-                document.getElementById('placeOrderBtn').innerHTML =
-                    '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                e.preventDefault(); // Prevent default form submission
+
+                // Show loading indicator
+                const btn = document.getElementById('placeOrderBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                // Submit the form after a short delay
+                setTimeout(() => {
+                    this.submit();
+                }, 500);
             });
 
-            // Manually trigger click for testing
-            document.querySelector('.place-order-btn').addEventListener('click', function() {
-                console.log('Place Order button clicked');
+            // Animation for table rows
+            document.querySelectorAll('tbody tr').forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                row.style.animation = `fadeInRow 0.4s ${index * 0.1}s forwards`;
             });
+
+            // Add the animation to the style tag
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInRow {
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Add smooth scroll to top when page loads with message
+            if (document.querySelector('.message')) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
         } else {
             console.error('Order form not found!');
-        }
-    });
-</script>
-<script>
-    // Handle form submission
-    document.getElementById('orderForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('placeOrderBtn');
-        const originalText = btn.innerHTML;
-
-        // Show loading state
-        btn.innerHTML = '<span class="loading"></span> Processing...';
-        btn.disabled = true;
-
-        // Submit the form after a short delay to show the loading state
-        setTimeout(() => {
-            this.submit();
-        }, 500);
-    });
-
-    // Animation for table rows
-    document.querySelectorAll('tbody tr').forEach((row, index) => {
-        row.style.opacity = '0';
-        row.style.transform = 'translateX(-20px)';
-        row.style.animation = `fadeInRow 0.4s ${index * 0.1}s forwards`;
-    });
-
-    // Add the animation to the style tag
-    const style = document.createElement('style');
-    style.textContent = `
-            @keyframes fadeInRow {
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-        `;
-    document.head.appendChild(style);
-
-    // Add smooth scroll to top when page loads with message
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.querySelector('.message')) {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
         }
     });
 </script>

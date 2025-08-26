@@ -24,4 +24,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT o FROM Order o WHERE o.id = :orderId AND o.seller.id = :sellerId")
     Optional<Order> findByIdAndSellerId(@Param("orderId") UUID orderId,
                                         @Param("sellerId") UUID sellerId);
+
+    @Query("SELECT DISTINCT o FROM Order o JOIN o.items i WHERE i.seller.id = :sellerId")
+    List<Order> findOrdersByItemSellerId(@Param("sellerId") UUID sellerId);
+
+    @Query("SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END " +
+            "FROM Order o WHERE o.id = :orderId AND o.seller.id = :sellerId")
+    boolean existsByIdAndSellerId(@Param("orderId") UUID orderId,
+                                  @Param("sellerId") UUID sellerId);
 }

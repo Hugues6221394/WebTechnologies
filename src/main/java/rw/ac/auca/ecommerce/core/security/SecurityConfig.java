@@ -2,6 +2,7 @@ package rw.ac.auca.ecommerce.core.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -56,11 +57,12 @@ public class SecurityConfig {
                                 "/seller/register",
                                 "/seller/debug"
                         ).permitAll()
-                        .requestMatchers("/seller/orders").hasAuthority("ROLE_SELLER")
-                        .requestMatchers("/product/**").hasAuthority("ROLE_SELLER")
+                        .requestMatchers("/seller/orders/**").hasAuthority("ROLE_SELLER")
+                        .requestMatchers("/product/**").hasAnyAuthority("ROLE_SELLER","ROLE_ADMIN")
                         .requestMatchers("/customer/orders").hasAuthority("ROLE_CUSTOMER")
                         .requestMatchers("/cart/**").hasAuthority("ROLE_CUSTOMER")
                         .requestMatchers("/customer/**").hasAuthority("ROLE_CUSTOMER")
+                        .requestMatchers(HttpMethod.POST, "/customer/cart/**").hasAuthority("ROLE_CUSTOMER")
                         .requestMatchers("/seller/**").hasAuthority("ROLE_SELLER")
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()

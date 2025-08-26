@@ -32,10 +32,9 @@ public class ProductServiceImpl implements IProductService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public Product findProductWithSeller(UUID productId) {
-        return productRepository.findProductWithSeller(productId)
-                .orElseThrow(() -> new ObjectNotFoundException(Product.class, "Product not found with ID: " + productId));
+        return productRepository.findByIdWithSeller(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
     }
 
     @Override

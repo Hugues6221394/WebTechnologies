@@ -95,34 +95,75 @@ public class CartController {
                 return "cart/viewCart";
             }
 
-            Order order = new Order();
-            order.setCustomer(customer);
-
-            // Get seller from first product
-            Product firstProduct = productService.findProductWithSeller(cart.get(0).getProduct().getId());
-            AppUser seller = firstProduct.getSeller();
-            order.setSeller(seller);
-
-            // Create order items
-            List<OrderItem> orderItems = cart.stream()
-                    .map(cartItem -> {
-                        Product product = productService.findProductWithSeller(cartItem.getProduct().getId());
-
-                        OrderItem item = new OrderItem();
-                        item.setProduct(product);
-                        item.setSeller(product.getSeller()); // THIS IS THE CRITICAL LINE
-                        item.setQuantity(cartItem.getQuantity());
-                        item.setPrice(product.getPrice());
-                        item.setOrder(order);
-                        return item;
-                    })
+            // Pre-load all products with their sellers to avoid LazyInitializationException
+            List<Product> productsWithSellers = cart.stream()
+                    .map(cartItem -> productService.findProductWithSeller(cartItem.getProduct().getId()))
                     .collect(Collectors.toList());
 
-            order.setItems(orderItems);
-            orderService.saveOrder(order);
+            // Replace cart items with fully loaded products
+            for (int i = 0; i < cart.size(); i++) {
+                cart.get(i).setProduct(productsWithSellers.get(i));
+            }
+
+            // DEBUG: Log cart contents (moved AFTER pre-loading)
+            System.out.println("=== DEBUG: Cart Contents ===");
+            cart.forEach(item -> System.out.println("Product: " + item.getProduct().getProductName() +
+                    ", Seller: " + item.getProduct().getSeller().getEmail()));
+
+            // Group cart items by seller
+            Map<AppUser, List<CartItem>> itemsBySeller = cart.stream()
+                    .collect(Collectors.groupingBy(
+                            item -> item.getProduct().getSeller(),
+                            Collectors.toList()
+                    ));
+
+            // DEBUG: Log grouped items
+            System.out.println("=== DEBUG: Grouped by Seller ===");
+            itemsBySeller.forEach((seller, items) -> {
+                System.out.println("Seller: " + seller.getEmail());
+                items.forEach(item -> System.out.println("  - Product: " + item.getProduct().getProductName()));
+            });
+
+            // Create one order per seller
+            for (Map.Entry<AppUser, List<CartItem>> entry : itemsBySeller.entrySet()) {
+                AppUser seller = entry.getKey();
+                List<CartItem> sellerItems = entry.getValue();
+
+                Order order = new Order();
+                order.setCustomer(customer);
+                order.setSeller(seller);
+
+                // Create order items for this seller
+                List<OrderItem> orderItems = sellerItems.stream()
+                        .map(cartItem -> {
+                            OrderItem item = new OrderItem();
+                            item.setProduct(cartItem.getProduct());
+                            item.setSeller(seller);
+                            item.setQuantity(cartItem.getQuantity());
+                            item.setPrice(cartItem.getProduct().getPrice());
+                            item.setOrder(order);
+                            return item;
+                        })
+                        .collect(Collectors.toList());
+
+                order.setItems(orderItems);
+
+                // DEBUG: Log order before saving
+                System.out.println("=== DEBUG: Saving Order ===");
+                System.out.println("Order Seller: " + order.getSeller().getEmail());
+                System.out.println("Order Customer: " + order.getCustomer().getEmail());
+                System.out.println("Order Items: " + order.getItems().size());
+                order.getItems().forEach(oi ->
+                        System.out.println("  - Item: " + oi.getProduct().getProductName() + ", Seller: " + oi.getSeller().getEmail()));
+
+                orderService.saveOrder(order);
+
+                // DEBUG: Log after saving
+                System.out.println("Order saved with ID: " + order.getId());
+            }
 
             session.removeAttribute("cart");
-            model.addAttribute("message", "Order placed successfully!");
+            model.addAttribute("message", "Orders placed successfully!");
             return "redirect:/customer/orders";
         } catch (Exception e) {
             logger.error("Error placing order", e);

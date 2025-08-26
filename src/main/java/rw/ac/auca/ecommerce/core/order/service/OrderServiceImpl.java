@@ -8,6 +8,7 @@ import rw.ac.auca.ecommerce.entity.order.Order;
 import rw.ac.auca.ecommerce.entity.order.OrderStatus;
 import rw.ac.auca.ecommerce.entity.order.OrderItem;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,9 +21,16 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     @Transactional
     public void saveOrder(Order order) {
+        System.out.println("=== DEBUG: saveOrder called ===");
+        System.out.println("Order seller: " + (order.getSeller() != null ? order.getSeller().getEmail() : "NULL"));
+        System.out.println("Order customer: " + (order.getCustomer() != null ? order.getCustomer().getEmail() : "NULL"));
+        System.out.println("Order items: " + order.getItems().size());
+
         validateOrder(order);
         order.getItems().forEach(item -> item.setOrder(order));
-        orderRepository.save(order);
+
+        Order savedOrder = orderRepository.save(order);
+        System.out.println("=== DEBUG: Order saved with ID: " + savedOrder.getId() + " ===");
     }
 
     private void validateOrder(Order order) {
@@ -111,20 +119,62 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public List<Order> getOrdersBySellerId(UUID sellerId) {
+        System.out.println("=== DEBUG: Fetching orders for seller: " + sellerId + " ===");
+
+        // Try both methods to see which one returns results
+        List<Order> byOrderSeller = orderRepository.findBySellerIdOrderByOrderDateDesc(sellerId);
+        List<Order> byItemSeller = orderRepository.findOrdersByItemSellerId(sellerId);
+
+        System.out.println("Orders by order seller: " + byOrderSeller.size());
+        System.out.println("Orders by item seller: " + byItemSeller.size());
+
+        byOrderSeller.forEach(order ->
+                System.out.println("Order " + order.getId() + " - Seller: " + order.getSeller().getId()));
+
+        byItemSeller.forEach(order ->
+                System.out.println("Order " + order.getId() + " - Items: " + order.getItems().size()));
+
+        // Return the appropriate one based on your design
         return orderRepository.findBySellerIdOrderByOrderDateDesc(sellerId);
     }
 
     @Override
     @Transactional
     public void updateOrderStatusBySeller(UUID orderId, UUID sellerId, OrderStatus status) {
-        Order order = orderRepository.findByIdAndSellerId(orderId, sellerId)
-                .orElseThrow(() -> new RuntimeException("Order not found or not authorized"));
+        try {
+            // Use the new query method that checks both order ID and seller ID
+            Order order = orderRepository.findByIdAndSellerId(orderId, sellerId)
+                    .orElseThrow(() -> new RuntimeException("Order not found or not authorized"));
 
-        order.setStatus(status);
-        if (status == OrderStatus.COMPLETED) {
-            order.setCompleted(true);
+            // Validate the status against your enum to ensure it's valid
+            if (!isValidStatus(status)) {
+                throw new IllegalArgumentException("Invalid order status: " + status);
+            }
+
+            order.setStatus(status);
+            if (status == OrderStatus.COMPLETED) {
+                order.setCompleted(true);
+            }
+            orderRepository.save(order);
+
+        } catch (Exception e) {
+            // Handle constraint violation specifically
+            if (e.getMessage().contains("constraint") && e.getMessage().contains("status_check")) {
+                throw new RuntimeException("Invalid status value. Allowed values are: " +
+                        Arrays.toString(OrderStatus.values()), e);
+            }
+            throw e;
         }
-        orderRepository.save(order);
+    }
+
+    private boolean isValidStatus(OrderStatus status) {
+        try {
+            // This will throw exception if the value is not valid
+            OrderStatus.valueOf(status.name());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     @Override
@@ -141,5 +191,31 @@ public class OrderServiceImpl implements IOrderService {
         return order.getItems().stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
                 .sum();
+    }
+
+    public boolean doesOrderBelongToSeller(UUID orderId, UUID sellerId) {
+        System.out.println("=== DEBUG: Checking order ownership ===");
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Repair inconsistent data if found
+        if (order.getSeller() == null && !order.getItems().isEmpty()) {
+            OrderItem firstItem = order.getItems().get(0);
+            if (firstItem.getProduct() != null && firstItem.getProduct().getSeller() != null) {
+                order.setSeller(firstItem.getProduct().getSeller());
+                orderRepository.save(order);
+                System.out.println("=== DEBUG: Repaired missing seller data ===");
+            }
+        }
+
+        // Check direct seller relationship
+        if (order.getSeller() != null && order.getSeller().getId().equals(sellerId)) {
+            System.out.println("=== DEBUG: Access granted ===");
+            return true;
+        }
+
+        System.out.println("=== DEBUG: Access denied ===");
+        return false;
     }
 }

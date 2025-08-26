@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import rw.ac.auca.ecommerce.core.order.repository.OrderRepository;
 import rw.ac.auca.ecommerce.core.order.service.IOrderService;
 import rw.ac.auca.ecommerce.core.util.product.UserRole;
@@ -26,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomerOrderController {
     private final IOrderService orderService;
-    private final IAppUserService appUserService;// Add this dependency
+    private final IAppUserService appUserService;
     private final OrderRepository orderRepository;
 
     @GetMapping("/orders")
@@ -36,7 +37,6 @@ public class CustomerOrderController {
             return "redirect:/auth/login";
         }
 
-        // Get user from service
         AppUser user = appUserService.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -48,35 +48,54 @@ public class CustomerOrderController {
         return "customer/orders";
     }
 
-    @PostMapping("/customer/orders/{orderId}/discard")
+    @PostMapping("/orders/{orderId}/discard")
     @Transactional
-    public ResponseEntity<?> discardOrder(
+    public String discardOrder(
             @PathVariable UUID orderId,
-            Principal principal,
-            @RequestHeader(value = "${_csrf.headerName}", required = false) String csrfToken) {
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
 
         try {
             Order order = orderService.findById(orderId);
 
             // Verify ownership
-            if (!order.getCustomer().getEmail().equals(principal.getName())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            if (!order.getCustomer().getEmail().equals(authentication.getName())) {
+                redirectAttributes.addFlashAttribute("error", "You don't have permission to discard this order");
+                return "redirect:/customer/orders";
             }
 
             // Verify status
             if (order.getStatus() != OrderStatus.PENDING) {
-                return ResponseEntity.badRequest()
-                        .body("Only PENDING orders can be discarded");
+                redirectAttributes.addFlashAttribute("error", "Only PENDING orders can be discarded");
+                return "redirect:/customer/orders";
             }
 
             order.setStatus(OrderStatus.CANCELLED);
             orderRepository.save(order);
 
-            return ResponseEntity.ok().build();
+            redirectAttributes.addFlashAttribute("success", "Order discarded successfully");
+            return "redirect:/customer/orders";
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error discarding order: " + e.getMessage());
+            return "redirect:/customer/orders";
+        }
+    }
+
+    @GetMapping("/orders/{id}")
+    public String viewOrderDetails(@PathVariable UUID id, Model model, Authentication authentication) {
+        try {
+            Order order = orderService.findById(id);
+
+            if (!order.getCustomer().getEmail().equals(authentication.getName())) {
+                return "redirect:/customer/orders?error=access_denied";
+            }
+
+            model.addAttribute("order", order);
+            return "customer/orders";
+
+        } catch (Exception e) {
+            return "redirect:/customer/orders?error=order_not_found";
         }
     }
 }

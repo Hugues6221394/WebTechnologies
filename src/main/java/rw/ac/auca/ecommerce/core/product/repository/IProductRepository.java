@@ -40,4 +40,7 @@ public interface IProductRepository extends JpaRepository<Product, UUID> {
     double calculateTotalRevenueForSeller(@Param("sellerId") UUID sellerId);
 
     int countOrdersBySellerId(UUID sellerId);
+
+    @Query("SELECT p FROM Product p JOIN FETCH p.seller WHERE p.id = :productId")
+    Optional<Product> findByIdWithSeller(@Param("productId") UUID productId);
 }

@@ -22,4 +22,7 @@ public interface IOrderService {
     void updateOrderStatusBySeller(UUID orderId, UUID sellerId, OrderStatus status);
     long countOrdersBySeller(UUID sellerId);
     List<Order> getPendingOrdersBySeller(UUID sellerId);
+
+    // Add these two methods to the interface
+    boolean doesOrderBelongToSeller(UUID orderId, UUID sellerId);
 }

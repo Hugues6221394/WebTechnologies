@@ -701,26 +701,31 @@
                     <thead>
                     <tr>
                         <th>Order ID</th>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Total</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
                         <th>Date</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="order : ${sellerOrders}">
-                        <td th:text="${order.orderId}">#1001</td>
-                        <td th:text="${order.product.productName}">Product Name</td>
-                        <td th:text="${order.quantity}">1</td>
-                        <td th:text="${'$' + #numbers.formatDecimal(order.totalPrice, 1, 2)}">$0.00</td>
-                        <td th:text="${#dates.format(order.orderDate, 'MMM dd')}">Jan 01</td>
+                        <td th:text="${order.id}">#1001</td>
+                        <td th:text="${order.customer.firstName + ' ' + order.customer.lastName}">Customer Name</td>
+                        <td th:text="${order.items.size()}">1</td>
+                        <td th:text="${'$' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">$0.00</td>
+                        <td th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy')}"></td>
                         <td>
-                            <span th:classappend="${order.status == 'PROCESSING'} ? 'status-badge status-processing' :
-                                                ${order.status == 'SHIPPED'} ? 'status-badge status-shipped' :
-                                                ${order.status == 'DELIVERED'} ? 'status-badge status-delivered' :
-                                                'status-badge status-cancelled'"
-                                  th:text="${order.status}">Processing</span>
+    <span th:switch="${order.status}">
+        <span th:case="'PENDING'" class="status-badge status-pending" th:text="${order.status}">Pending</span>
+        <span th:case="'PROCESSING'" class="status-badge status-approved" th:text="${order.status}">Processing</span>
+        <span th:case="'COMPLETED'" class="status-badge status-completed" th:text="${order.status}">Completed</span>
+        <span th:case="*" class="status-badge status-cancelled" th:text="${order.status}">Cancelled</span>
+    </span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/seller/orders/details'(id=${order.id})}" class="btn-view">View Details</a>
                         </td>
                     </tr>
                     </tbody>
