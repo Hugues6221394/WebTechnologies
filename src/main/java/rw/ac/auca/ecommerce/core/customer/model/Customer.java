@@ -26,6 +26,8 @@ public class Customer extends AbstractBaseEntity {
     @Column(name = "email" , nullable = false , unique = true)
     private String email;
 
+    private String password;
+
     @Column(name = "phone_number" , nullable = false , unique = true)
     private String phoneNumber;
 

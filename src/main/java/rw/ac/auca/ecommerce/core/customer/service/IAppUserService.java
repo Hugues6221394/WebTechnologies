@@ -46,6 +46,8 @@ public interface IAppUserService {
 
     // Session management
     void expireUserSessions(String email);
+    List<AppUser> findAllActiveCustomers();
+
 
     //AppUser login(String email, String rawPassword);
 }

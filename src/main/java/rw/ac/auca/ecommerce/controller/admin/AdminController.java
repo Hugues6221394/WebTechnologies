@@ -2,11 +2,16 @@ package rw.ac.auca.ecommerce.controller.admin;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import rw.ac.auca.ecommerce.core.customer.model.Customer;
+import rw.ac.auca.ecommerce.core.customer.repository.IAppUserRepository;
+import rw.ac.auca.ecommerce.core.customer.repository.ICustomerRepository;
 import rw.ac.auca.ecommerce.core.customer.service.IAppUserService;
 import rw.ac.auca.ecommerce.core.customer.service.ICustomerService;
 import rw.ac.auca.ecommerce.core.order.service.IOrderService;
@@ -15,9 +20,11 @@ import rw.ac.auca.ecommerce.core.product.service.IProductService;
 import rw.ac.auca.ecommerce.entity.AppUser;
 import rw.ac.auca.ecommerce.entity.order.Order;
 import rw.ac.auca.ecommerce.core.util.product.UserRole;
+import rw.ac.auca.ecommerce.entity.order.OrderStatus;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -29,6 +36,12 @@ public class AdminController {
     private final IOrderService orderService;
     private final IProductService productService;
     private final ICustomerService customerService;
+    private final ICustomerRepository customerRepository;
+
+    @Autowired
+    private IAppUserRepository appUserRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // ----------------- Login -----------------
     @GetMapping("/login")
@@ -76,12 +89,6 @@ public class AdminController {
 
         // Add any dashboard statistics you want to display
         model.addAttribute("admin", adminUser);
-        // Uncomment these when you implement the service methods:
-        // model.addAttribute("productCount", productService.countAllProducts());
-        // model.addAttribute("customerCount", customerService.countAllCustomers());
-        // model.addAttribute("sellerCount", appUserService.countAllSellers());
-        // model.addAttribute("pendingOrdersCount", orderService.countOrdersByStatus("PENDING"));
-
         return "admin/adminDashboard";
     }
 
@@ -313,4 +320,163 @@ public class AdminController {
         appUserService.register(seller);
         return "redirect:/admin/dashboard";
     }
+
+    @PostMapping("/update-status")  // This handles /seller/orders/update-status
+    public String updateOrderStatus(@RequestParam("id") UUID orderId,
+                                    @RequestParam("status") String status,
+                                    Authentication authentication,
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            Optional<AppUser> admin = appUserService.findByEmail(authentication.getName());
+
+            // Verify the seller has access to this order
+            if (!orderService.doesOrderBelongToSeller(orderId, admin.get().getId())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Access denied to this order");
+                return "redirect:/admin/orders";
+            }
+
+            // Update the order status
+            orderService.updateOrderStatusBySeller(orderId, admin.get().getId(), OrderStatus.valueOf(status));
+
+            redirectAttributes.addFlashAttribute("successMessage", "Order status updated successfully!");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update order status: " + e.getMessage());
+        }
+
+        return "redirect:/admin/orders/details?id=" + orderId;
+    }
+
+    @GetMapping("/sellers")
+    public String listSellers(Model model) {
+        List<AppUser> sellers = appUserService.findAllSellers(); // uses service method for role filtering
+        model.addAttribute("sellers", sellers);
+        return "admin/sellers";
+    }
+
+    // Show edit form
+    @GetMapping("/sellers/edit/{id}")
+    public String editSellerPage(@PathVariable("id") UUID id, Model model) {
+        AppUser seller = appUserRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+        model.addAttribute("seller", seller);
+        return "admin/editSellerPage"; // name of your Thymeleaf template for editing
+    }
+
+
+    @PostMapping("/sellers/edit")
+    public String updateSeller(@ModelAttribute("seller") AppUser formSeller,
+                               @RequestParam(value = "newPassword", required = false) String newPassword,
+                               @RequestParam(value = "deactivate", required = false) boolean deactivate) {
+        AppUser seller = appUserRepository.findById(formSeller.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Seller not found"));
+
+        seller.setFirstName(formSeller.getFirstName());
+        seller.setLastName(formSeller.getLastName());
+        seller.setEmail(formSeller.getEmail());
+        seller.setPhoneNumber(formSeller.getPhoneNumber());
+        seller.setBusinessName(formSeller.getBusinessName());
+        seller.setBusinessAddress(formSeller.getBusinessAddress());
+        seller.setBusinessType(formSeller.getBusinessType());
+        seller.setRegistrationNumber(formSeller.getRegistrationNumber());
+
+        if (newPassword != null && !newPassword.isBlank()) {
+            seller.setPassword(passwordEncoder.encode(newPassword));
+        }
+
+        seller.setActive(!deactivate);
+
+        appUserService.update(seller);
+
+        return "redirect:/admin/sellers";
+    }
+
+    // ----------------- Customers Management -----------------
+
+    // View all customers
+    @GetMapping("/customers")
+    public String listCustomers(Model model, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
+
+        List<AppUser> customers = appUserService.findAllActiveCustomers();
+        model.addAttribute("customers", customers);
+        return "admin/customers"; // create template admin/customers.html
+    }
+
+
+//    // Show add customer page
+//    @GetMapping("/customers/add")
+//    public String addCustomerPage(Authentication authentication, Model model) {
+//        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
+//
+//        model.addAttribute("customer", new Customer());
+//        return "admin/addCustomerPage"; // Thymeleaf template: admin/addCustomerPage.html
+//    }
+//
+//    // Handle adding customer
+//    @PostMapping("/customers/add")
+//    public String addCustomer(@ModelAttribute Customer customer, Authentication authentication) {
+//        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
+//
+//        // make sure in your service layer you set active=true when registering
+//        customerService.registerCustomer(customer);
+//        return "redirect:/admin/customers";
+//    }
+
+    @GetMapping("/customers/edit/{id}")
+    public String editCustomerPage(@PathVariable("id") UUID id, Model model, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) {
+            return "redirect:/admin/login";
+        }
+
+        Customer customer = customerService.findCustomerByEmailAndState(authentication.getName(), true);
+        if (customer == null) {
+            // optional: add a flash attribute for "Customer not found"
+            return "redirect:/admin/customers";
+        }
+
+        model.addAttribute("customer", customer);
+        return "admin/editCustomerPage"; // Thymeleaf template name
+    }
+
+    // Handle customer update
+    @PostMapping("/customers/update") // <-- match this to your form action
+    public String updateCustomer(@ModelAttribute Customer customer, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) {
+            return "redirect:/admin/login";
+        }
+
+        Customer existingCustomer = customerService.findCustomerByIdAndState(customer.getId(), true);
+        if (existingCustomer == null) {
+            // optional: add a flash attribute for "Customer not found"
+            return "redirect:/admin/customers";
+        }
+
+        existingCustomer.setFirstName(customer.getFirstName());
+        existingCustomer.setLastName(customer.getLastName());
+        existingCustomer.setEmail(customer.getEmail());
+        existingCustomer.setPhoneNumber(customer.getPhoneNumber());
+
+        customerService.updateCustomer(existingCustomer);
+        return "redirect:/admin/customers";
+    }
+
+    // Delete customer (soft delete: set active=false in service)
+    @PostMapping("/customers/delete")
+    public String deleteCustomer(@RequestParam UUID id, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) {
+            return "redirect:/admin/login";
+        }
+
+        Customer customer = customerService.findCustomerByIdAndState(id, true);
+        if (customer == null) {
+            // optional: add a flash attribute for "Customer not found"
+            return "redirect:/admin/customers";
+        }
+
+        customerService.deleteCustomer(customer);
+        return "redirect:/admin/customers";
+    }
+
+
 }

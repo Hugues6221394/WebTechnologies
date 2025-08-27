@@ -3,6 +3,7 @@ package rw.ac.auca.ecommerce.core.customer.service;
 import rw.ac.auca.ecommerce.core.customer.model.Customer;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -17,6 +18,7 @@ public interface ICustomerService {
     Customer updateCustomer(Customer theCustomer);
     Customer deleteCustomer(Customer theCustomer);
     Customer findCustomerByIdAndState(UUID id , Boolean state);
+    Optional<Customer> findCustomerById(UUID id);
     Customer findCustomerByEmailAndState(String email , Boolean state);
     List<Customer> findCustomersByState(Boolean state);
 

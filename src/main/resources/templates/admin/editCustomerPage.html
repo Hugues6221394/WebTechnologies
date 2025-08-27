@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Customer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form div {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input {
+            padding: 5px;
+            width: 250px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        a {
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<h1>Edit Customer</h1>
+<a href="/admin/customers">Back to Customers</a>
+
+<form th:action="@{/admin/customers/update}" th:object="${customer}" method="post">
+    <input type="hidden" th:field="*{id}"/>
+    <div>
+        <label>First Name:</label>
+        <input type="text" th:field="*{firstName}" required/>
+    </div>
+    <div>
+        <label>Last Name:</label>
+        <input type="text" th:field="*{lastName}" required/>
+    </div>
+    <div>
+        <label>Email:</label>
+        <input type="email" th:field="*{email}" required/>
+    </div>
+    <div>
+        <label>Phone:</label>
+        <input type="text" th:field="*{phoneNumber}" required/>
+    </div>
+    <div>
+        <button type="submit">Update Customer</button>
+    </div>
+</form>
+</body>
+</html>

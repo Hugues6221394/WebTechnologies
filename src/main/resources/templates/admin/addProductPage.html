@@ -356,39 +356,9 @@
                     </a>
                 </li>
                 <li>
-                    <a th:href="@{/admin/products}">
+                    <a th:href="@{/admin/products/search/all}">
                         <i class="fas fa-box-open"></i>
                         <span>Products</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/customers}">
-                        <i class="fas fa-users"></i>
-                        <span>Customers</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/sellers}">
-                        <i class="fas fa-store"></i>
-                        <span>Sellers</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/orders}">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Orders</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/admins}">
-                        <i class="fas fa-user-shield"></i>
-                        <span>Admins</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/settings}">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
                     </a>
                 </li>
             </ul>
@@ -413,6 +383,7 @@
             </div>
 
             <form th:action="@{/product/register}" th:object="${product}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="form-grid">
                     <!-- Product Name -->
                     <div class="form-group">

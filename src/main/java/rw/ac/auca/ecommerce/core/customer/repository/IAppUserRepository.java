@@ -23,14 +23,15 @@ public interface IAppUserRepository extends JpaRepository<AppUser, UUID> {
     @Query("SELECT u FROM AppUser u WHERE u.role = :role AND u.active = true")
     List<AppUser> findByRole(@Param("role") UserRole role);
 
-    @Query("SELECT u FROM AppUser u WHERE u.role = 'SELLER' AND u.active = true")
+    @Query("SELECT u FROM AppUser u WHERE u.role = 'ROLE_SELLER' AND u.active = true")
     List<AppUser> findAllActiveSellers();
 
-    @Query("SELECT u FROM AppUser u WHERE u.role = 'ADMIN' AND u.active = true")
+    @Query("SELECT u FROM AppUser u WHERE u.role = 'ROLE_ADMIN' AND u.active = true")
     List<AppUser> findAllActiveAdmins();
 
-    @Query("SELECT u FROM AppUser u WHERE u.role = 'CUSTOMER' AND u.active = true")
+    @Query("SELECT u FROM AppUser u WHERE u.role = 'ROLE_CUSTOMER' AND u.active = true")
     List<AppUser> findAllActiveCustomers();
+
 
     Optional<AppUser> findByResetToken(String token);
 

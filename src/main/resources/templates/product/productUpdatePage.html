@@ -9,6 +9,7 @@
 <h2>Update Product</h2>
 
 <form th:action="@{/product/updateProduct}" th:object="${product}" method="post" class="row g-3">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <input type="hidden" th:field="*{id}"/>
 
     <div class="col-md-6">

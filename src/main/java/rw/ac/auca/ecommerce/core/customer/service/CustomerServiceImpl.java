@@ -10,6 +10,7 @@ import rw.ac.auca.ecommerce.core.customer.repository.ICustomerRepository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -60,10 +61,13 @@ public class CustomerServiceImpl implements ICustomerService{
 
     @Override
     public Customer findCustomerByIdAndState(UUID id, Boolean state) {
-        Customer theCustomer = customerRepository.findByIdAndActive(id ,state)
-                .orElseThrow(() -> new ObjectNotFoundException(Customer.class , "Customer not found"));
-        return theCustomer;
+        return customerRepository.findByIdAndActive(id, state)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
     }
+    public Optional<Customer> findCustomerById(UUID id) {
+        return customerRepository.findById(id);
+    }
+
 
     @Override
     public Customer findCustomerByEmailAndState(String email, Boolean state) {

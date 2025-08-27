@@ -33,35 +33,35 @@ public class SellerController {
     private final IProductService productService;
     private final IOrderService orderService;
 
-    // GET seller registration page
-    @GetMapping("/register")
-    public String getSellerRegistrationPage(Model model) {
-        model.addAttribute("user", new AppUser());
-        return "seller/sellerRegistrationPage"; // your Thymeleaf view
-    }
-
-    // POST seller registration form
-    @PostMapping("/register")
-    public String registerSeller(@ModelAttribute("user") AppUser user,
-                                 @RequestParam("confirmPassword") String confirmPassword,
-                                 Model model) {
-
-        if (!user.getPassword().equals(confirmPassword)) {
-            model.addAttribute("error", "Passwords do not match!");
-            return "seller/sellerRegistrationPage";
-        }
-
-        try {
-            user.setRole(UserRole.ROLE_SELLER);
-            user.setActive(true); // assuming you have this field to enable user
-            appUserService.register(user);
-            model.addAttribute("message", "Seller registered successfully!");
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-        }
-
-        return "seller/sellerRegistrationPage";
-    }
+//    // GET seller registration page
+//    @GetMapping("/register")
+//    public String getSellerRegistrationPage(Model model) {
+//        model.addAttribute("user", new AppUser());
+//        return "seller/sellerRegistrationPage"; // your Thymeleaf view
+//    }
+//
+//    // POST seller registration form
+//    @PostMapping("/register")
+//    public String registerSeller(@ModelAttribute("user") AppUser user,
+//                                 @RequestParam("confirmPassword") String confirmPassword,
+//                                 Model model) {
+//
+//        if (!user.getPassword().equals(confirmPassword)) {
+//            model.addAttribute("error", "Passwords do not match!");
+//            return "seller/sellerRegistrationPage";
+//        }
+//
+//        try {
+//            user.setRole(UserRole.ROLE_SELLER);
+//            user.setActive(true); // assuming you have this field to enable user
+//            appUserService.register(user);
+//            model.addAttribute("message", "Seller registered successfully!");
+//        } catch (RuntimeException e) {
+//            model.addAttribute("error", e.getMessage());
+//        }
+//
+//        return "seller/sellerRegistrationPage";
+//    }
 
     // GET login page
     @GetMapping("/login")
@@ -98,51 +98,6 @@ public class SellerController {
         return "seller/sellerDashboard";
     }
 
-//    @GetMapping("/orders/details")
-//    public String viewOrderDetails(@RequestParam("id") UUID orderId,
-//                                   HttpSession session,
-//                                   Model model) {
-//        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
-//
-//        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
-//            return "redirect:/auth/login";
-//        }
-//
-//        Order order = orderService.findById(orderId);
-//        if (order == null) {
-//            model.addAttribute("error", "Order not found");
-//            return "redirect:/seller/orders";
-//        }
-//
-//        // Attach order + items
-//        model.addAttribute("order", order);
-//        model.addAttribute("items", order.getItems());
-//
-//        return "seller/sellerOrderDetailsPage";
-//    }
-//
-//    @PostMapping("/orders/update-status")
-//    public String updateOrderStatus(@RequestParam("id") UUID orderId,
-//                                    @RequestParam("status") String status,
-//                                    RedirectAttributes redirectAttributes,
-//                                    HttpSession session) {
-//
-//        AppUser seller = (AppUser) session.getAttribute("loggedInUser");
-//        if (seller == null || seller.getRole() != UserRole.ROLE_SELLER) {
-//            return "redirect:/auth/login";
-//        }
-//
-//        try {
-//            orderService.updateOrderStatus(orderId, status);
-//            redirectAttributes.addFlashAttribute("successMessage",
-//                    "Order status updated to " + status + " successfully!");
-//        } catch (Exception e) {
-//            redirectAttributes.addFlashAttribute("errorMessage",
-//                    "Failed to update order status: " + e.getMessage());
-//        }
-//
-//        return "redirect:/seller/orders/details?id=" + orderId;
-//    }
 
     // Show seller profile page
     @GetMapping("/profile")

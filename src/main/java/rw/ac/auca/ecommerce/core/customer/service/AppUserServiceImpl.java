@@ -43,23 +43,6 @@ public class AppUserServiceImpl implements IAppUserService {
         return appUserRepository.findByEmail(email);
     }
 
-//    @Override
-//    public boolean authenticate(String email, String rawPassword) {
-//        AppUser user = appUserRepository.findByEmail(email)
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//        if (!user.isActive()) {
-//            throw new BadCredentialsException("Account is disabled");
-//        }
-//
-//        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-//            incrementFailedLoginAttempts(user);
-//            throw new BadCredentialsException("Invalid credentials");
-//        }
-//
-//        resetFailedLoginAttempts(user);
-//        return true;
-//    }
 
     @Override
     public void updatePassword(AppUser user, String newPassword) {
@@ -265,25 +248,9 @@ public class AppUserServiceImpl implements IAppUserService {
         return true;
     }
 
-//    @Override
-//    public AppUser login(String email, String rawPassword) {
-//        AppUser user = appUserRepository.findByEmail(email)
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//        if (!user.isActive()) {
-//            throw new BadCredentialsException("Account is disabled");
-//        }
-//
-//        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-//            incrementFailedLoginAttempts(user);
-//            throw new BadCredentialsException("Invalid credentials");
-//        }
-//
-//        if (!user.isAccountNonLocked()) {
-//            throw new BadCredentialsException("Account is locked");
-//        }
-//
-//        resetFailedLoginAttempts(user);
-//        return user;
-//    }
+    @Override
+    public List<AppUser> findAllActiveCustomers() {
+        return appUserRepository.findAllActiveCustomers();
+    }
+
 }
