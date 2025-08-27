@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - AUCA E-Commerce</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reuse the same styles as public-homepage */
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --error: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header and navigation styles (same as public-homepage) */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Products Section */
+        .products-section {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-info h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .product-info p {
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .price {
+            color: var(--accent) !important;
+            font-weight: 600;
+            font-size: 1.1rem !important;
+        }
+
+        .product-actions {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .view-details-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .view-details-btn:hover {
+            background: var(--accent);
+        }
+
+        .login-to-buy {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .products-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">AUCA E-Commerce</div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/products}">Browse Products</a>
+
+        <!-- Show different navigation based on authentication -->
+        <div sec:authorize="isAnonymous()">
+            <a th:href="@{/auth/login}">Login</a>
+            <a th:href="@{/auth/customer/register}">Sign Up</a>
+        </div>
+
+        <div sec:authorize="isAuthenticated()">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <span sec:authentication="principal.username.substring(0, 1).toUpperCase()"></span>
+                </div>
+                <span sec:authentication="principal.username"></span>
+                <div class="profile-dropdown">
+                    <a th:href="@{/customer/homepage}" sec:authorize="hasAuthority('ROLE_CUSTOMER')">My Profile</a>
+                    <a th:href="@{/seller/dashboard}" sec:authorize="hasAuthority('ROLE_SELLER')">Seller Dashboard</a>
+                    <a th:href="@{/admin/dashboard}" sec:authorize="hasAuthority('ROLE_ADMIN')">Admin Dashboard</a>
+                    <a th:href="@{/customer/orders}" sec:authorize="hasAuthority('ROLE_CUSTOMER')">My Orders</a>
+                    <a th:href="@{/customer/cart/view}" sec:authorize="hasAuthority('ROLE_CUSTOMER')">My Cart</a>
+                    <a th:href="@{/logout}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<section class="products-section">
+    <div class="products-header">
+        <h1 class="section-title">All Products</h1>
+        <div sec:authorize="isAnonymous()" class="login-prompt">
+            <a th:href="@{/auth/login}" class="cta-btn">Login to Purchase</a>
+        </div>
+    </div>
+
+    <div class="products-grid">
+        <div class="product-card" th:each="product : ${products}">
+            <img th:if="${product.imagePath != null}"
+                 th:src="${product.imagePath}"
+                 alt="Product Image" />
+            <img th:unless="${product.imagePath != null}"
+                 th:src="@{/images/default.jpg}"
+                 alt="Default Product Image" />
+            <div class="product-info">
+                <h3 th:text="${product.productName}">Product Name</h3>
+                <p th:text="${product.description}">Product Description</p>
+                <p class="price">Price: <span th:text="${'RWF ' + #numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}"></span></p>
+                <p>Stock: <span th:text="${product.stockState}"></span></p>
+            </div>
+            <div class="product-actions">
+                <a th:href="@{/products/{id}(id=${product.id})}" class="view-details-btn">View Details</a>
+                <div class="login-to-buy" sec:authorize="isAnonymous()">
+                    <a th:href="@{/auth/login}">Login to purchase</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(products)}" class="no-products">
+        <p>No products available at the moment. Please check back later.</p>
+    </div>
+</section>
+
+<!-- Footer Section (add your footer here) -->
+
+</body>
+</html>

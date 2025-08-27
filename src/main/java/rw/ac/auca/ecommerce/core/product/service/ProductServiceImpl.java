@@ -85,4 +85,11 @@ public class ProductServiceImpl implements IProductService {
     public double calculateTotalRevenueForSeller(UUID sellerId) {
         return productRepository.calculateTotalRevenueForSeller(sellerId);
     }
+
+    // Add this method implementation
+    @Override
+    public Product findProductById(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+    }
 }

@@ -24,6 +24,7 @@ public interface IProductService {
     int countProductsBySellerId(UUID sellerId);
     int countOrdersBySellerId(UUID sellerId);
     double calculateTotalRevenueForSeller(UUID sellerId);
+    Product findProductById(UUID id);
 
 
 

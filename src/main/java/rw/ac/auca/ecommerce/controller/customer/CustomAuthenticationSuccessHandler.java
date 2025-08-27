@@ -22,16 +22,13 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        System.out.println("Successful authentication, redirecting based on role...");
-
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 
-        if (roles.contains("ROLE_SELLER")) {
-            System.out.println("Redirecting to seller dashboard");
-            redirectStrategy.sendRedirect(request, response, "/seller/dashboard");
-        }
-        else if (roles.contains("ROLE_ADMIN")) {
+        if (roles.contains("ROLE_ADMIN")) {
             redirectStrategy.sendRedirect(request, response, "/admin/dashboard");
+        }
+        else if (roles.contains("ROLE_SELLER")) {
+            redirectStrategy.sendRedirect(request, response, "/seller/dashboard");
         }
         else {
             redirectStrategy.sendRedirect(request, response, "/customer/homepage");

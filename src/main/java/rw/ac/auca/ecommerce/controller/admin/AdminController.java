@@ -2,6 +2,7 @@ package rw.ac.auca.ecommerce.controller.admin;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,65 +27,68 @@ public class AdminController {
 
     private final IAppUserService appUserService;
     private final IOrderService orderService;
-    private  final IProductService productService;
+    private final IProductService productService;
     private final ICustomerService customerService;
 
     // ----------------- Login -----------------
     @GetMapping("/login")
-    public String showLoginPage() {
-        return "admin/adminLoginPage"; // Show login form
+    public String showLoginPage(@RequestParam(value = "error", required = false) String error,
+                                @RequestParam(value = "logout", required = false) String logout,
+                                @RequestParam(value = "expired", required = false) String expired,
+                                Model model) {
+
+        if (error != null) {
+            model.addAttribute("error", "Invalid username or password!");
+        }
+        if (logout != null) {
+            model.addAttribute("msg", "You've been logged out successfully.");
+        }
+        if (expired != null) {
+            model.addAttribute("msg", "Session expired. Please login again.");
+        }
+
+        return "admin/adminLoginPage";
     }
 
-//    @PostMapping("/login")
-//    public String processAdminLogin(@RequestParam String email,
-//                                    @RequestParam String password,
-//                                    HttpSession session,
-//                                    Model model) {
-//
-//        // Authenticate using service
-//        AppUser admin = appUserService.login(email, password);
-//
-//        // If login failed
-//        if (admin == null || admin.getRole() != UserRole.ADMIN) {
-//            model.addAttribute("error", "Invalid credentials or not an admin");
-//            return "admin/adminLoginPage"; // back to login page
-//        }
-//
-//        // Set session attribute
-//        session.setAttribute("loggedInUser", admin);
-//
-//        // Redirect to dashboard
-//        return "redirect:/admin/dashboard";
-//    }
-
-
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/admin/login?logout";
+    public String logout() {
+        return "redirect:/auth/login?logout";
     }
 
     // ----------------- Dashboard -----------------
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session, Model model) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.ROLE_ADMIN) {
+    public String dashboard(Authentication authentication, Model model) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/admin/login";
         }
 
+        // Check if user has admin role
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            return "redirect:/access-denied";
+        }
+
+        // Get admin user details
+        AppUser adminUser = appUserService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+
         // Add any dashboard statistics you want to display
-        model.addAttribute("admin", user);
-//        model.addAttribute("productCount", productService.countAllProducts());
-//        model.addAttribute("customerCount", customerService.countAllCustomers());
-//        model.addAttribute("sellerCount", appUserService.countAllSellers());
-//        model.addAttribute("pendingOrdersCount", orderService.countOrdersByStatus("PENDING"));
+        model.addAttribute("admin", adminUser);
+        // Uncomment these when you implement the service methods:
+        // model.addAttribute("productCount", productService.countAllProducts());
+        // model.addAttribute("customerCount", customerService.countAllCustomers());
+        // model.addAttribute("sellerCount", appUserService.countAllSellers());
+        // model.addAttribute("pendingOrdersCount", orderService.countOrdersByStatus("PENDING"));
+
         return "admin/adminDashboard";
     }
 
     // ----------------- Orders Management -----------------
     @GetMapping("/orders")
-    public String viewAllOrders(HttpSession session, Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String viewAllOrders(Authentication authentication, Model model) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         List<Order> orders = orderService.findAllOrders();
         model.addAttribute("orders", orders);
@@ -93,9 +97,9 @@ public class AdminController {
 
     @GetMapping("/orders/details")
     public String viewOrderDetails(@RequestParam("id") UUID orderId,
-                                   HttpSession session,
+                                   Authentication authentication,
                                    Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         Order order = orderService.findById(orderId);
         if (order == null) {
@@ -110,8 +114,8 @@ public class AdminController {
     @PostMapping("/orders/update-status")
     public String updateOrderStatus(@RequestParam UUID orderId,
                                     @RequestParam String status,
-                                    HttpSession session) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+                                    Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         try {
             orderService.updateOrderStatus(orderId, status);
@@ -123,8 +127,8 @@ public class AdminController {
     }
 
     @PostMapping("/orders/delete")
-    public String deleteOrder(@RequestParam UUID orderId, HttpSession session) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String deleteOrder(@RequestParam UUID orderId, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         orderService.deleteOrder(orderId);
         return "redirect:/admin/orders";
@@ -132,16 +136,16 @@ public class AdminController {
 
     // ----------------- Manage Admins -----------------
     @GetMapping("/admins")
-    public String manageAdmins(HttpSession session, Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String manageAdmins(Authentication authentication, Model model) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         model.addAttribute("admins", appUserService.findAllAdmins());
         return "admin/adminListPage";
     }
 
     @GetMapping("/admins/add")
-    public String addAdminPage(HttpSession session, Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String addAdminPage(Authentication authentication, Model model) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         model.addAttribute("admin", new AppUser());
         return "admin/addAdminPage";
@@ -168,8 +172,8 @@ public class AdminController {
     }
 
     @PostMapping("/admins/delete")
-    public String deleteAdmin(@RequestParam UUID id, HttpSession session) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String deleteAdmin(@RequestParam UUID id, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         if (Objects.nonNull(id)) {
             AppUser admin = new AppUser();
@@ -182,11 +186,13 @@ public class AdminController {
 
     // ----------------- Settings -----------------
     @GetMapping("/settings")
-    public String settingsPage(HttpSession session, Model model) {
-        AppUser user = getLoggedAdmin(session);
-        if (user == null) return "redirect:/admin/login";
+    public String settingsPage(Authentication authentication, Model model) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
-        model.addAttribute("admin", user);
+        AppUser adminUser = appUserService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+
+        model.addAttribute("admin", adminUser);
         return "admin/adminSettings";
     }
 
@@ -195,10 +201,12 @@ public class AdminController {
                                  @RequestParam String currentPassword,
                                  @RequestParam(required = false) String newPassword,
                                  @RequestParam(required = false) String confirmNewPassword,
-                                 HttpSession session,
+                                 Authentication authentication,
                                  Model model) {
-        AppUser admin = getLoggedAdmin(session);
-        if (admin == null) return "redirect:/admin/login";
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
+
+        AppUser admin = appUserService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Admin user not found"));
 
         if (!appUserService.checkPassword(admin, currentPassword)) {
             model.addAttribute("error", "Incorrect current password");
@@ -224,55 +232,40 @@ public class AdminController {
     public String resetUserPassword(@RequestParam String userEmail,
                                     @RequestParam String newPassword,
                                     Model model,
-                                    HttpSession session) {
-        AppUser admin = getLoggedAdmin(session);
-        if (admin == null) return "redirect:/admin/login";
+                                    Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
+
+        AppUser adminUser = appUserService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Admin user not found"));
 
         boolean success = appUserService.resetPasswordByEmail(userEmail, newPassword);
         model.addAttribute(success ? "resetMessage" : "resetError",
                 success ? "Password reset successfully for user: " + userEmail :
                         "User not found with email: " + userEmail);
-        model.addAttribute("admin", admin);
+        model.addAttribute("admin", adminUser);
         return "admin/adminSettings";
     }
 
     // ----------------- Helper Methods -----------------
-    private boolean isAdminLoggedIn(HttpSession session) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        return user != null && user.getRole() == UserRole.ROLE_ADMIN;
-    }
-
-    private AppUser getLoggedAdmin(HttpSession session) {
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        return (user != null && user.getRole() == UserRole.ROLE_ADMIN) ? user : null;
-    }
-
-
-    // List all customers (SELLER only)
-    @GetMapping({"", "/search/all"})
-    public String getAllCustomers(HttpSession session, Model model){
-        AppUser user = (AppUser) session.getAttribute("loggedInUser");
-        if (user == null || user.getRole() != UserRole.ROLE_SELLER) {
-            return "redirect:/auth/login";
-        }
-
-        List<Customer> customers = customerService.findCustomersByState(Boolean.TRUE);
-        model.addAttribute("customers", customers);
-        return "customer/customerList";
+    private boolean isAdminAuthenticated(Authentication authentication) {
+        return authentication != null &&
+                authentication.isAuthenticated() &&
+                authentication.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
     // ----------------- Products Management -----------------
     @GetMapping("/products/add")
-    public String addProductPage(HttpSession session, Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String addProductPage(Authentication authentication, Model model) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         model.addAttribute("product", new Product());
         return "admin/addProductPage";
     }
 
     @PostMapping("/products/add")
-    public String addProduct(@ModelAttribute Product product, HttpSession session) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String addProduct(@ModelAttribute Product product, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         productService.createProduct(product);
         return "redirect:/admin/dashboard";
@@ -280,16 +273,16 @@ public class AdminController {
 
     // ----------------- Customers Management -----------------
     @GetMapping("/customers/add")
-    public String addCustomerPage(HttpSession session, Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String addCustomerPage(Authentication authentication, Model model) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         model.addAttribute("customer", new Customer());
         return "admin/addCustomerPage";
     }
 
     @PostMapping("/customers/add")
-    public String addCustomer(@ModelAttribute Customer customer, HttpSession session) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String addCustomer(@ModelAttribute Customer customer, Authentication authentication) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         customerService.registerCustomer(customer);
         return "redirect:/admin/dashboard";
@@ -297,8 +290,8 @@ public class AdminController {
 
     // ----------------- Sellers Management -----------------
     @GetMapping("/sellers/add")
-    public String addSellerPage(HttpSession session, Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+    public String addSellerPage(Authentication authentication, Model model) {
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         model.addAttribute("seller", new AppUser());
         return "admin/addSellerPage";
@@ -307,9 +300,9 @@ public class AdminController {
     @PostMapping("/sellers/add")
     public String addSeller(@ModelAttribute AppUser seller,
                             @RequestParam String confirmPassword,
-                            HttpSession session,
+                            Authentication authentication,
                             Model model) {
-        if (!isAdminLoggedIn(session)) return "redirect:/admin/login";
+        if (!isAdminAuthenticated(authentication)) return "redirect:/admin/login";
 
         if (!seller.getPassword().equals(confirmPassword)) {
             model.addAttribute("error", "Passwords don't match");
@@ -320,5 +313,4 @@ public class AdminController {
         appUserService.register(seller);
         return "redirect:/admin/dashboard";
     }
-
 }

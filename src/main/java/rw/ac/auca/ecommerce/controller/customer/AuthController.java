@@ -40,56 +40,13 @@ public class AuthController {
         return "auth/login";
     }
 
-    @PostMapping("/login")
-    public String processLogin(@RequestParam String username,
-                               @RequestParam String password,
-                               @RequestParam String role,
-                               HttpSession session,
-                               RedirectAttributes redirectAttributes) {
-
-        try {
-            // Verify the user exists and credentials are valid (handled by Spring Security)
-            AppUser user = appUserService.findByEmail(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            // Verify role matches
-            UserRole selectedRole = UserRole.valueOf("ROLE_" + role.toUpperCase());
-            if (user.getRole() != selectedRole) {
-                redirectAttributes.addAttribute("role_mismatch", role.toLowerCase());
-                return "redirect:/auth/login";
-            }
-
-            // Check account status
-            if (!user.isActive()) {
-                redirectAttributes.addAttribute("error", "Account is disabled. Please contact support.");
-                return "redirect:/auth/login";
-            }
-
-            if (!user.isAccountNonLocked()) {
-                redirectAttributes.addAttribute("error", "Account locked due to multiple failed attempts. Try again later.");
-                return "redirect:/auth/login";
-            }
-
-            // Set session attributes (optional, since Spring Security already handles this)
-            session.setAttribute("loggedInUser", user);
-            session.setAttribute("userRole", user.getRole().name());
-
-            // Redirect based on role (Spring Security will handle the actual authentication)
-            return "redirect:/auth/login?role=" + role.toLowerCase();
-
-        } catch (Exception e) {
-            redirectAttributes.addAttribute("error", "Login error: " + e.getMessage());
-            return "redirect:/auth/login";
-        }
-    }
-
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-        return "redirect:/auth/login?logout=true";
+        return "redirect:/?logout=true";
     }
 
     @GetMapping("/customer/register")

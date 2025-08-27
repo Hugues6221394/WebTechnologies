@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
+                                "/home",
                                 "/auth/**",
                                 "/css/**",
                                 "/js/**",
@@ -52,10 +53,11 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/error",
                                 "/favicon.ico",
-                                "/customer/homepage",
                                 "/customer/register",
-                                "/seller/register",
-                                "/seller/debug"
+                                "/seller/debug",
+                                "/admin/login",
+                                "/products",  // Allow public access to products
+                                "/products/**"  // Allow public access to product details
                         ).permitAll()
                         .requestMatchers("/seller/orders/**").hasAuthority("ROLE_SELLER")
                         .requestMatchers("/product/**").hasAnyAuthority("ROLE_SELLER","ROLE_ADMIN")
@@ -76,7 +78,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/auth/login?logout=true")
+                        .logoutSuccessUrl("/?logout=true")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
