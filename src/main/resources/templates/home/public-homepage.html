@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AUCA E-Commerce - Welcome</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #2c3e50;
@@ -75,7 +75,7 @@
       background-color: rgba(255, 255, 255, 0.1);
     }
 
-    /* User Profile Dropdown */
+    /* User Profile Dropdown - Only show for logged-in users */
     .user-profile {
       position: relative;
       display: flex;
@@ -126,6 +126,26 @@
       display: block;
     }
 
+    /* Guest indicator for non-logged-in users */
+    .guest-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+
+    .guest-avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
     /* Hero Section */
     .hero {
       background: var(--gradient);
@@ -159,8 +179,32 @@
       opacity: 0.9;
     }
 
-    /* Quick Access Section */
-    .quick-access-section {
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .buttons a {
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .buttons a:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Products Section */
+    .products-section {
       padding: 4rem 2rem;
       background: var(--light);
     }
@@ -171,6 +215,102 @@
       margin-bottom: 3rem;
       color: var(--primary);
       font-weight: 700;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-info {
+      padding: 1.5rem;
+    }
+
+    .product-info h3 {
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .product-info p {
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .price {
+      color: var(--accent) !important;
+      font-weight: 600;
+      font-size: 1.1rem !important;
+    }
+
+    .product-actions {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .view-details-btn {
+      display: block;
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+      margin-bottom: 0.5rem;
+    }
+
+    .view-details-btn:hover {
+      background: var(--accent);
+    }
+
+    .login-purchase-btn {
+      display: block;
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--success);
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-purchase-btn:hover {
+      background: var(--success);
+      opacity: 0.9;
+    }
+
+    /* Quick Access Section */
+    .quick-access-section {
+      padding: 4rem 2rem;
+      background: var(--light);
     }
 
     .access-cards {
@@ -260,117 +400,6 @@
       color: white;
     }
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-      }
-
-      nav {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
-      }
-
-      .access-cards {
-        grid-template-columns: 1fr;
-      }
-
-      .hero h1 {
-        font-size: 2rem;
-      }
-
-      .hero p {
-        font-size: 1rem;
-      }
-    }
-
-    /* Products Section */
-    .products-section {
-      padding: 4rem 2rem;
-      background: var(--light);
-    }
-
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .product-card {
-      background: white;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      transition: all 0.3s ease;
-    }
-
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .product-card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .product-info {
-      padding: 1.5rem;
-    }
-
-    .product-info h3 {
-      color: var(--primary);
-      margin-bottom: 0.5rem;
-      font-size: 1.2rem;
-    }
-
-    .product-info p {
-      color: var(--text-light);
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-    }
-
-    .price {
-      color: var(--accent) !important;
-      font-weight: 600;
-      font-size: 1.1rem !important;
-    }
-
-    .product-actions {
-      padding: 1rem 1.5rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .view-details-btn {
-      display: block;
-      width: 100%;
-      padding: 0.8rem;
-      background: var(--primary);
-      color: white;
-      text-decoration: none;
-      text-align: center;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: background-color 0.3s ease;
-    }
-
-    .view-details-btn:hover {
-      background: var(--accent);
-    }
-
-    .login-to-buy {
-      text-align: center;
-      color: var(--text-light);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-
     /* Call to Action */
     .cta-section {
       background: var(--gradient);
@@ -413,6 +442,37 @@
     .cta-btn.primary:hover {
       background: rgba(255, 255, 255, 0.9);
     }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .access-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -427,17 +487,22 @@
     <div sec:authorize="isAnonymous()">
       <a th:href="@{/auth/login}">Login</a>
       <a th:href="@{/auth/customer/register}">Sign Up</a>
+
+      <!-- Guest indicator for non-logged-in users -->
+      <div class="guest-indicator">
+        <div class="guest-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <span>Guest</span>
+      </div>
     </div>
 
-<!--    <div sec:authorize="isAnonymous()">-->
-<!--      <div class="user-profile">-->
-<!--        <div class="user-avatar">-->
-<!--          <span>G</span> &lt;!&ndash; Default letter or guest icon &ndash;&gt;-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-
-    <span sec:authentication="principal.username"></span>
+    <div sec:authorize="isAuthenticated()">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <span sec:authentication="principal.username.substring(0, 1).toUpperCase()"></span>
+        </div>
+        <span sec:authentication="principal.username"></span>
         <div class="profile-dropdown">
           <a th:href="@{/customer/homepage}" sec:authorize="hasAuthority('ROLE_CUSTOMER')">My Profile</a>
           <a th:href="@{/seller/dashboard}" sec:authorize="hasAuthority('ROLE_SELLER')">Seller Dashboard</a>
@@ -455,13 +520,63 @@
   <h1>Welcome to AUCA Students Online Market</h1>
   <p>Discover amazing products from our platform!</p>
 
-<!--  <div sec:authorize="isAuthenticated()">-->
-<!--    <div class="buttons">-->
-<!--      <a th:href="@{/customer/homepage}" sec:authorize="hasAuthority('ROLE_CUSTOMER')">Go to Shopping</a>-->
-<!--      <a th:href="@{/seller/dashboard}" sec:authorize="hasAuthority('ROLE_SELLER')">Seller Dashboard</a>-->
-<!--      <a th:href="@{/admin/dashboard}" sec:authorize="hasAuthority('ROLE_ADMIN')">Admin Dashboard</a>-->
-<!--    </div>-->
-<!--  </div>-->
+  <div sec:authorize="isAuthenticated()">
+    <div class="buttons">
+      <a th:href="@{/customer/homepage}" sec:authorize="hasAuthority('ROLE_CUSTOMER')">Go to Shopping</a>
+      <a th:href="@{/seller/dashboard}" sec:authorize="hasAuthority('ROLE_SELLER')">Seller Dashboard</a>
+      <a th:href="@{/admin/dashboard}" sec:authorize="hasAuthority('ROLE_ADMIN')">Admin Dashboard</a>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="products-section">
+  <h2 class="section-title">Featured Products</h2>
+  <div class="products-grid">
+    <div class="product-card" th:each="product : ${featuredProducts}">
+      <img th:if="${product.imagePath != null}"
+           th:src="${product.imagePath}"
+           alt="Product Image" />
+      <img th:unless="${product.imagePath != null}"
+           th:src="@{/images/default.jpg}"
+           alt="Default Product Image" />
+      <div class="product-info">
+        <h3 th:text="${product.productName}">Product Name</h3>
+        <p th:text="${product.description}">Product Description</p>
+        <p class="price">Price: <span th:text="${'RWF ' + #numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}"></span></p>
+        <p>Stock: <span th:text="${product.stockState}"></span></p>
+      </div>
+      <div class="product-actions">
+        <a th:href="@{/products/{id}(id=${product.id})}" class="view-details-btn">View Details</a>
+
+        <!-- Login to purchase button - shown to non-logged-in users -->
+        <a th:href="@{/auth/login}" class="login-purchase-btn" sec:authorize="isAnonymous()">
+          <i class="fas fa-shopping-cart"></i> Login to Purchase
+        </a>
+
+        <!-- Add to cart button - shown to logged-in customers -->
+        <div sec:authorize="hasAuthority('ROLE_CUSTOMER')">
+          <form th:action="@{/customer/cart/add}" method="post" style="margin-top: 0.5rem;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="productId" th:value="${product.id}" />
+            <button type="submit" class="login-purchase-btn">
+              <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section" sec:authorize="isAnonymous()">
+  <h2>Ready to Start Shopping?</h2>
+  <p>Create an account to purchase products and enjoy exclusive benefits</p>
+  <div class="cta-buttons">
+    <a th:href="@{/auth/login}" class="cta-btn">Login to Your Account</a>
+    <a th:href="@{/auth/customer/register}" class="cta-btn primary">Create New Account</a>
+  </div>
 </section>
 
 <!-- Quick Access Cards Section -->
@@ -497,46 +612,6 @@
     </div>
   </div>
 </section>
-
-<!-- Featured Products Section -->
-<section class="products-section">
-  <h2 class="section-title">Featured Products</h2>
-  <div class="products-grid">
-    <div class="product-card" th:each="product : ${featuredProducts}">
-      <img th:if="${product.imagePath != null}"
-           th:src="${product.imagePath}"
-           alt="Product Image" />
-      <img th:unless="${product.imagePath != null}"
-           th:src="@{/images/default.jpg}"
-           alt="Default Product Image" />
-      <div class="product-info">
-        <h3 th:text="${product.productName}">Product Name</h3>
-        <p th:text="${product.description}">Product Description</p>
-        <p class="price">Price: <span th:text="${'RWF ' + #numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}"></span></p>
-        <p>Stock: <span th:text="${product.stockState}"></span></p>
-      </div>
-      <div class="product-actions">
-        <a th:href="@{/products/{id}(id=${product.id})}" class="view-details-btn">View Details</a>
-        <div class="login-to-buy" sec:authorize="isAnonymous()">
-          <a th:href="@{/auth/login}">Login to purchase</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Call to Action Section -->
-<section class="cta-section" sec:authorize="isAnonymous()">
-  <h2>Ready to Start Shopping?</h2>
-  <p>Create an account to purchase products and enjoy exclusive benefits</p>
-  <div class="cta-buttons">
-    <a th:href="@{/auth/login}" class="cta-btn">Login to Your Account</a>
-    <a th:href="@{/auth/customer/register}" class="cta-btn primary">Create New Account</a>
-  </div>
-</section>
-
-
-<!-- Footer Section (add your footer here) -->
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
